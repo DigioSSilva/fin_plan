@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 15px;
+        }
+        .navbar-brand {
+            font-weight: 700;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        .nav-link.active { 
+            font-weight: bold;
+        }
+        .container {
+            max-width: 960px;
+            margin: 20px auto;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        .messages li {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        .messages li.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .messages li.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <a class="navbar-brand" href="{% url 'dashboard' %}">Minhas Finanças</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto"> 
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if '/transacoes/' in request.path %}active{% endif %}" href="{% url 'transacoes' %}"><i class="fas fa-exchange-alt"></i> Transações</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-light text-center py-3">
+        <p>&copy; <span id="currentYear">2023</span> Automatize-se</p>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal fade" id="adicionarReceitaModal" tabindex="-1" aria-labelledby="adicionarReceitaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adicionarReceitaModalLabel">Adicionar Receita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAdicionarReceita" method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="mb-3">
+                            <label for="id_categoria" class="form-label">Categoria</label>
+                            <select id="id_categoria" name="categoria" class="form-select">
+                                {% for categoria in categorias_receita %}
+                                    <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_valor" class="form-label">Valor</label>
+                            <input type="text" class="form-control" id="id_valor" name="valor" placeholder="Ex: 1500,00">
+                        </div>
+                        <!-- Adicione outros campos conforme necessário -->
+                        <button type="submit" class="btn btn-primary">Salvar Receita</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            document.getElementById('currentYear').textContent = currentYear;
+
+            // Teste para verificar se jQuery está funcionando
+            console.log('jQuery está funcionando!');
+
+            // Inicialização da máscara de dinheiro
+            // Você pode adicionar a máscara aqui se for necessário na página principal
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>

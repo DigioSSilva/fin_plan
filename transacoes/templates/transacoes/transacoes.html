@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %} 
+
+{% block title %}Transações{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4"> 
+    <h1 class="mb-4">Transações</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center"> 
+                    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarReceita">
+                        <i class="fas fa-plus me-2"></i> Adicionar Receita
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarDespesa"> 
+                        <i class="fas fa-minus me-2"></i> Adicionar Despesa
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarCategoria"> 
+                        <i class="fas fa-folder-plus me-2"></i> Adicionar Categoria
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Suas transações recentes</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                    <th>Categoria</th>
+                    <th>Tipo</th>
+                    <th>Ações</th> 
+                </tr>
+            </thead>
+            <tbody>
+            {% for transacao in transacoes %}
+                <tr>
+                    <td>{{ transacao.descricao }}</td>
+                    <td>
+                        {% if transacao.tipo == 'receita' %}
+                            <span class="text-success">R$ {{ transacao.valor|floatformat:2 }}</span> 
+                        {% else %}
+                            <span class="text-danger">- R$ {{ transacao.valor|floatformat:2 }}</span> 
+                        {% endif %}
+                    </td>
+                    <td>{{ transacao.data }}</td>
+                    <td>{{ transacao.categoria.nome }}</td> 
+                    <td>
+                        {% if transacao.tipo == 'receita' %}
+                            <span class="badge bg-success">Receita</span>
+                        {% else %}
+                            <span class="badge bg-danger">Despesa</span>
+                        {% endif %}
+                    </td>
+                    <td> 
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirTransacao{{ transacao.id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% include 'transacoes/excluir_transacao.html' %} 
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'transacoes/adicionar_receita.html' %}
+{% include 'transacoes/adicionar_despesa.html' %}
+{% include 'transacoes/adicionar_categoria.html' %}
+
+
+<script>
+    // Função para excluir transação via AJAX
+    function excluirTransacao(transacaoId, tipo) {
+        console.log("Função excluirTransacao chamada com ID:", transacaoId, "Tipo:", tipo);
+
+        $.ajax({
+            type: 'POST',
+            url: '/transacoes/excluir_transacao/' + transacaoId + '/', 
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                tipo: tipo
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    location.reload(); 
+                } else {
+                    alert('Erro ao excluir a transação: ' + response.error); 
+                }
+            },
+            error: function() {
+                alert('Erro na requisição AJAX.');
+            }
+        });
+    }
+
+</script>
+
+{% endblock %}

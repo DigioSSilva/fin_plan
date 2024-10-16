@@ -1,0 +1,48 @@
+<div class="modal fade" id="modalEditarTransacao{{ transacao.id }}" tabindex="-1" aria-labelledby="modalEditarTransacaoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEditarTransacaoLabel">Editar Transação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editarTransacaoForm{{ transacao.id }}" method="post" action="{% url 'editar_transacao' transacao.id %}">
+            {% csrf_token %}
+  
+            {% if form.errors %}
+              <div class="alert alert-danger">
+                <ul>
+                  {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                      <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+  
+            <div class="mb-3">
+              <label for="id_descricao_editar" class="form-label">Descrição</label>
+              {{ form.descricao }}
+            </div>
+            <div class="mb-3">
+              <label for="id_valor_editar" class="form-label">Valor</label>
+              {{ form.valor }}
+            </div>
+            <div class="mb-3">
+              <label for="id_categoria_editar" class="form-label">Categoria</label>
+              {{ form.categoria }}
+            </div>
+            <div class="mb-3">
+              <label for="id_data_editar" class="form-label">Data</label>
+              {{ form.data }}
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" form="editarTransacaoForm{{ transacao.id }}">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>

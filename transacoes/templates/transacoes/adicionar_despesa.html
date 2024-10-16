@@ -1,0 +1,90 @@
+<div class="modal fade" id="modalAdicionarDespesa" tabindex="-1" aria-labelledby="modalAdicionarDespesaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdicionarDespesaLabel">Adicionar Despesa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="despesaForm" method="post" action="{% url 'adicionar_despesa' %}">
+                    {% csrf_token %}
+                    <div id="mensagem-sucesso-despesa" class="alert alert-success" style="display: none;">
+                        Despesa salva com sucesso!
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_descricao" class="form-label">Descrição</label>
+                        <input type="text" id="id_descricao" name="descricao" class="form-control" placeholder="Ex: Supermercado" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_categoria" class="form-label">Categoria</label>
+                        <select id="id_categoria" name="categoria" class="form-control" required>
+                            <option value="" disabled selected>Selecione uma categoria</option>
+                            {% for categoria in categorias_despesa %}
+                                <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_data" class="form-label">Data</label>
+                        <input type="date" id="id_data" name="data" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_valor" class="form-label">Valor</label>
+                        <input type="text" id="id_valor" name="valor" class="form-control" placeholder="Ex: 150,00" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex justify-content-between">  
+                    <button type="submit" class="btn btn-success btn-lg" form="despesaForm">Salvar Despesa</button>
+                    <button type="button" class="btn btn-secondary ms-3" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#despesaForm').submit(function(event) {
+            event.preventDefault(); // Impedir o envio padrão do formulário
+
+            // Desativar o botão de submit
+            $('#despesaForm button[type="submit"]').prop('disabled', true);
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // Exibir a mensagem de sucesso no modal
+                        $('#mensagem-sucesso-despesa').text(response.message).show(); 
+                        $('#despesaForm')[0].reset();
+                        $('#id_descricao').focus();
+                    } else {
+                        // Exibir os erros de validação
+                        let errorMessages = '';
+                        $.each(response.errors, function(field, errors) {
+                            errorMessages += field + ': ' + errors.join(', ') + '\n';
+                        });
+                        alert(errorMessages);
+                    }
+                },
+                error: function() {
+                    alert('Ocorreu um erro ao salvar a despesa.');
+                },
+                complete: function() {
+                    $('#despesaForm button[type="submit"]').prop('disabled', false); 
+                }
+            });
+        });
+
+        // Evento de fechamento do modal de despesa
+        $('#modalAdicionarDespesa').on('hidden.bs.modal', function () {
+            $('#mensagem-sucesso-despesa').hide(); // Esconder a mensagem ao fechar
+            location.reload(); // Recarrega a página
+        });
+    });
+</script>

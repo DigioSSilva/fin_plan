@@ -1,0 +1,83 @@
+<!-- Modal Adicionar Categoria -->
+<div class="modal fade" id="modalAdicionarCategoria" tabindex="-1" aria-labelledby="modalAdicionarCategoriaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdicionarCategoriaLabel">Adicionar Categoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="mensagem-sucesso-categoria" class="alert alert-success" style="display: none;"></div>
+                <div id="mensagem-erro-categoria" class="alert alert-danger" style="display: none;"></div>
+                <form id="categoriaForm" method="post" action="{% url 'adicionar_categoria' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_nome" class="form-label">Nome da Categoria</label>
+                        <input type="text" id="id_nome" name="nome" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_tipo" class="form-label">Tipo</label>
+                        <select id="id_tipo" name="tipo" class="form-control" required>
+                            <option value="receita">Receita</option>
+                            <option value="despesa">Despesa</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnSalvarCategoria" type="button" class="btn btn-primary btn-lg">Salvar Categoria</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Código para submit do formulário de categoria
+        $('#categoriaForm').off('submit').on('submit', function(event) {
+            console.log("Formulário de categoria enviado"); // Log para verificar
+            event.preventDefault(); // Impedir o envio padrão do formulário
+            event.stopPropagation(); // Impedir que o evento se propague
+
+            // Desativar o botão de submit
+            $('#categoriaForm button[type="submit"]').prop('disabled', true); 
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#mensagem-sucesso-categoria').text(response.message).show(); 
+                        $('#mensagem-erro-categoria').hide(); // Esconder mensagem de erro
+                        $('#id_nome').val(''); // Limpar apenas o campo de nome
+                        $('#id_nome').focus(); // Focar novamente no campo de nome
+                    } else {
+                        $('#mensagem-erro-categoria').text(response.error).show(); 
+                        $('#mensagem-sucesso-categoria').hide(); // Esconder mensagem de sucesso
+                    }
+                },
+                error: function() {
+                    alert('Ocorreu um erro ao salvar a categoria.');
+                },
+                complete: function() {
+                    $('#categoriaForm button[type="submit"]').prop('disabled', false); 
+                }
+            });
+        });
+
+        // Evento para o botão "Salvar Categoria"
+        $('#btnSalvarCategoria').on('click', function() {
+            $('#categoriaForm').submit(); // Dispara o evento de submit do formulário
+        });
+
+        // Evento de fechamento do modal de categoria
+        $('#modalAdicionarCategoria').on('hidden.bs.modal', function () {
+            $('#mensagem-sucesso-categoria').hide(); // Esconder a mensagem ao fechar
+            $('#mensagem-erro-categoria').hide(); // Esconder mensagem de erro ao fechar
+            // Não redefinindo o tipo para receita
+        });
+    });
+</script>

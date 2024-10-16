@@ -1,0 +1,94 @@
+<div class="modal fade" id="modalAdicionarReceita" tabindex="-1" aria-labelledby="modalAdicionarReceitaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdicionarReceitaLabel">Adicionar    Receita</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form    id="receitaForm" method="post" action="{% url 'adicionar_receita' %}">
+          {% csrf_token %}
+
+          <div id="mensagem-sucesso-receita" class="alert alert-success" style="display: none;">
+            Receita salva com sucesso! 
+          </div>
+
+          <div class="mb-3">
+            <label for="id_descricao" class="form-label">Descrição</label>
+            <input type="text" id="id_descricao" name="descricao" class="form-control" placeholder="Ex: Salário" required>
+          </div>
+          <div class="mb-3">
+            <label for="id_categoria" class="form-label">Categoria</label>
+            <select id="id_categoria" name="categoria" class="form-control" required>
+              <option value="" disabled selected>Selecione uma categoria</option>
+              {% for categoria in categorias_receita %}
+                <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="id_data" class="form-label">Data</label>
+            <input type="date" id="id_data" name="data" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="id_valor" class="form-label">Valor</label>
+            <input type="text" id="id_valor" name="valor" class="form-control" placeholder="Ex: 1500,00" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="d-flex justify-content-between">  
+          <button type="submit" class="btn btn-success btn-lg" form="receitaForm">Salvar Receita</button>
+          <button type="button" class="btn btn-secondary ms-3" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  // Código para submit do formulário de receita
+  $('#receitaForm').submit(function(event) {
+    event.preventDefault(); // Impedir o envio padrão do formulário
+
+    // Serializar os dados do formulário manualmente, excluindo o botão de submit
+    var formData = $('#receitaForm').find(':input').not(':submit').serialize(); 
+
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: formData, // Usar os dados serializados manualmente
+      dataType: 'json',
+      success: function(response) {
+        if (response.success) {
+          // Exibir a mensagem de sucesso no modal
+          $('#mensagem-sucesso-receita').text(response.message).show(); 
+
+          // Limpar os campos do formulário
+          $('#receitaForm')[0].reset();
+
+          // Focar no primeiro campo do formulário
+          $('#id_descricao').focus();
+
+        } else {
+          // Exibir os erros de validação
+          let errorMessages = '';
+          $.each(response.errors, function(field, errors) {
+            errorMessages += field + ': ' + errors.join(', ') + '\n';
+          });
+          alert(errorMessages);
+        }
+      },
+      error: function() {
+        alert('Ocorreu um erro ao salvar a receita.');
+      }
+    });
+  });
+
+  // Evento de fechamento do modal de receita
+  $('#modalAdicionarReceita').on('hidden.bs.modal', function () {
+    location.reload(); // Recarrega a página
+  });
+});
+</script>
