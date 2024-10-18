@@ -1,8 +1,155 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard Financeiro{% endblock %}
 
 {% block content %}
-<h1>Bem-vindo ao Dashboard</h1>
-<p>Aqui você verá um resumo das suas finanças.</p>
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-gap: 20px;
+    }
+
+    .dashboard-card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px; /* Mantendo o padding original */
+        border-radius: 8px;
+        background-color: white;
+        /* Largura não foi alterada, mantendo o comportamento responsivo */
+    }
+
+    .filters {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .filters select {
+        margin-right: 10px;
+        padding: 5px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+
+    .filters button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #despesasChart {
+        max-height: 300px; /* Reduzindo a altura do gráfico */
+    }
+</style>
+
+<div class="container mt-4">
+    <h1>Dashboard Financeiro</h1>
+
+    <div class="greeting">
+        <p>
+            {% if now.hour < 12 %} Bom dia,
+            {% elif now.hour < 18 %} Boa tarde,
+            {% else %} Boa noite,
+            {% endif %}
+            {{ user.get_full_name|default:user.username|capfirst }}!
+        </p>
+    </div>
+
+    <div class="filters">
+        <form method="GET">
+            <label for="month">Mês:</label>
+            <select name="month">
+                {% for month in months %}
+                    <option value="{{ month.value }}" {% if month.value == current_month %}selected{% endif %}>
+                        {{ month.label }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="year">Ano:</label>
+            <select name="year">
+                {% for year in years %}
+                    <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Filtrar</button>
+        </form>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h2>Resumo Mensal</h2>
+            <p>Receita mensal: R$ {{ total_receitas|floatformat:2 }}</p>
+            <p>Despesa mensal: R$ {{ total_despesas|floatformat:2 }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>Despesas por Categoria</h2>
+            <canvas id="despesasChart"></canvas>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+            <script>
+                // Registrar o plugin de datalabels
+                Chart.register(ChartDataLabels);
+
+                var ctx = document.getElementById('despesasChart').getContext('2d');
+                var despesasChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: {{ categorias|safe }},
+                        datasets: [{
+                            data: {{ totais|safe }},
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        var label = context.label || '';
+                                        var value = context.parsed || 0;
+                                        return `${label}: R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                display: true,
+                                anchor: 'center',
+                                align: 'center',
+                                formatter: function(value, context) {
+                                    return `${context.chart.data.labels[context.dataIndex]}\nR$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+                                },
+                                color: '#000',  // Cor preta para o texto
+                                font: {
+                                    weight: 'bold',
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
 {% endblock %}
