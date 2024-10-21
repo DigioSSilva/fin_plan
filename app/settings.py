@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "users",
     "dashboard",
     "transacoes",
+    "planejamento",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
