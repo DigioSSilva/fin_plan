@@ -9,7 +9,7 @@
 <div class="container mt-4"> 
     <h1 class="mb-4">Transações</h1>
 
-    <div class="row">
+    <div class="row my-4 justify-content-around"> 
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body text-center"> 
@@ -24,15 +24,6 @@
                 <div class="card-body text-center">
                     <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarDespesa"> 
                         <i class="fas fa-minus me-2"></i> Adicionar Despesa
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-body text-center">
-                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarCategoria"> 
-                        <i class="fas fa-folder-plus me-2"></i> Adicionar Categoria
                     </button>
                 </div>
             </div>
@@ -88,11 +79,8 @@
 
 {% include 'transacoes/adicionar_receita.html' %}
 {% include 'transacoes/adicionar_despesa.html' %}
-{% include 'transacoes/adicionar_categoria.html' %}
-
 
 <script>
-    // Função para excluir transação via AJAX
     function excluirTransacao(transacaoId, tipo) {
         console.log("Função excluirTransacao chamada com ID:", transacaoId, "Tipo:", tipo);
 
@@ -116,7 +104,6 @@
             }
         });
     }
-
 </script>
 
 {% endblock %}

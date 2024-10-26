@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from datetime import datetime
 from transacoes.models import Receita, Despesa
+from planejamento.models import Categoria
 from django.db.models import Sum
 import matplotlib.pyplot as plt
 import os
@@ -58,6 +59,14 @@ def dashboard(request):
     print(f"Categorias: {categorias}")
     print(f"Totais: {totais}")
 
+    #Buscar montante total planejado
+    total_planejamento = Categoria.objects.filter(tipo= 'despesa', usuario=request.user).aggregate(Sum('montante_plan'))['montante_plan__sum']
+
+    #Saldo Atual e saldo planejado
+    saldo_atual = total_receitas - total_despesas
+    saldo_planejado = total_receitas - total_planejamento
+    
+
     context = {
         'now': now,
         'months': months,
@@ -66,6 +75,9 @@ def dashboard(request):
         'current_year': current_year,
         'total_receitas': total_receitas,
         'total_despesas': total_despesas,
+        'total_planejamento': total_planejamento,
+        'saldo_atual': saldo_atual,
+        'saldo_planejado': saldo_planejado,
         'categorias': categorias,
         'totais': totais,
     }

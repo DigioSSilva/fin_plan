@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}Planejamento{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Planejamento</h1>
+
+    <div class="row my-4 justify-content-center">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarCategoria">
+                        <i class="fas fa-folder-plus me-2"></i> Adicionar Categoria
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Suas categorias de despesa</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Valor Atribuído</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCategorias">
+            {% for categoria in categorias_despesa %}
+                <tr>
+                    <td>{{ categoria.nome }}</td>
+                    <td>R$ {{ categoria.montante_plan|floatformat:2 }}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirCategoria{{ categoria.id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% include 'planejamento/excluir_categoria.html' with categoria=categoria %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Incluindo o modal de adicionar categoria -->
+{% include 'planejamento/adicionar_categoria.html' %}
+
+<script>
+    $(document).ready(function() {
+        // Atualiza a tabela de categorias
+        function atualizarTabelaCategorias() {
+            $.ajax({
+                url: '{% url 'categorias_view' %}',
+                type: 'GET',
+                dataType: 'html',
+                success: function(data) {
+                    // Criar um elemento temporário para processar o HTML retornado
+                    var tempElement = $('<div>').html(data);
+        
+                    // Obter apenas a seção da tabela de categorias
+                    var categoriesTable = tempElement.find('#tabelaCategorias');
+        
+                    // Atualizar a tabela de categorias no DOM
+                    $('#tabelaCategorias').html(categoriesTable.html());
+                },
+                error: function(xhr, status, error) {
+                    alert('Erro ao carregar categorias: ' + error);
+                }
+            });
+        }
+
+        // Código para submit do formulário de categoria
+        $('#categoriaForm').off('submit').on('submit', function(event) {
+            event.preventDefault(); // Impedir o envio padrão do formulário
+
+            // Desativar o botão de submit
+            $('#categoriaForm button[type="submit"]').prop('disabled', true);
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#mensagem-sucesso-categoria').text(response.message).show();
+                        $('#mensagem-erro-categoria').hide();
+                        $('#id_nome').val(''); // Limpar apenas o campo de nome
+                        $('#id_nome').focus(); // Focar novamente no campo de nome
+                        $('#modalAdicionarCategoria').modal('hide'); // Fecha o modal após sucesso
+                        atualizarTabelaCategorias(); // Atualiza a tabela
+                    } else {
+                        $('#mensagem-erro-categoria').text(response.error).show();
+                        $('#mensagem-sucesso-categoria').hide();
+                    }
+                },
+                error: function() {
+                    alert('Ocorreu um erro ao salvar a categoria.');
+                },
+                complete: function() {
+                    $('#categoriaForm button[type="submit"]').prop('disabled', false);
+                }
+            });
+        });
+
+        // Evento de fechamento do modal de categoria
+        $('#modalAdicionarCategoria').on('hidden.bs.modal', function () {
+            $('#mensagem-sucesso-categoria').hide(); // Esconder a mensagem ao fechar
+            $('#mensagem-erro-categoria').hide(); // Esconder mensagem de erro ao fechar
+        });
+    });
+
+    function excluirCategoria(categoriaId) {
+        $.ajax({
+            type: 'POST',
+            url: '/planejamento/excluir_categoria/' + categoriaId + '/',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    location.reload(); // Atualiza a página após exclusão
+                } else {
+                    alert('Erro ao excluir a categoria: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('Erro na requisição AJAX.');
+            }
+        });
+    }
+</script>
+
+{% endblock %}

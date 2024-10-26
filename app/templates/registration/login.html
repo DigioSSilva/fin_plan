@@ -1,18 +1,65 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            font-size: 1.2rem; /* Aumenta o tamanho da fonte da página */
+        }
+        .form-control {
+            height: 50px; /* Aumenta a altura dos campos de entrada */
+            font-size: 1.2rem; /* Aumenta o tamanho da fonte nos campos */
+        }
+        .btn {
+            height: 50px; /* Aumenta a altura do botão */
+            font-size: 1.2rem; /* Aumenta o tamanho da fonte do botão */
+        }
+        h2 {
+            font-size: 2rem; /* Aumenta o tamanho do título */
+        }
+    </style>
 </head>
 <body>
-    <h2>Login</h2>
-    <form method="post" action="">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <p>Não tem uma conta? <a href="{% url 'register' %}">Registre-se aqui</a></p>
-    <p>Esqueceu sua senha? <a href="{% url 'password_reset' %}">Redefina aqui</a></p>
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <div class="card shadow p-4 w-100 max-width-400">
+            <h2 class="text-center mb-4">Auto Fin</h2>
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    <input type="text" name="username" id="{{ form.username.id_for_label }}" class="form-control" value="{{ form.username.value|default_if_none:'' }}">
+                    {% if form.username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    <input type="password" name="password" id="{{ form.password.id_for_label }}" class="form-control">
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+            <div class="mt-3 text-center">
+                <p>Não tem uma conta? <a href="{% url 'register' %}">Registre-se aqui</a></p>
+                <p>Esqueceu sua senha? <a href="{% url 'password_reset' %}">Redefina aqui</a></p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

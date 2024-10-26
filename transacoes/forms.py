@@ -1,8 +1,5 @@
 from django import forms
 from .models import Receita, Despesa, Categoria
-import decimal
-from decimal import Decimal
-from django.core.exceptions import ValidationError
 
 class ReceitaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -45,18 +42,6 @@ class DespesaForm(forms.ModelForm):
     class Meta:
         model = Despesa
         fields = ['descricao', 'categoria', 'data', 'valor']
-
-class CategoriaForm(forms.ModelForm):
-    # Adicionar a classe 'form-control' aos campos do formulário
-    def __init__(self, *args, **kwargs):
-        super(CategoriaForm, self).__init__(*args, **kwargs)
-        self.fields['nome'].widget.attrs.update({'class': 'form-control'})
-        self.fields['tipo'].widget.attrs.update({'class': 'form-control'})
-
-    class Meta:
-        model = Categoria
-        fields = ['nome', 'tipo']
-
 
 class EditarTransacaoForm(forms.ModelForm):
     class Meta:

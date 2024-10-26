@@ -11,10 +11,13 @@
                     <div id="mensagem-sucesso-despesa" class="alert alert-success" style="display: none;">
                         Despesa salva com sucesso!
                     </div>
+                    <div id="mensagem-erro-despesa" class="alert alert-danger" style="display: none;"></div>
+
                     <div class="mb-3">
                         <label for="id_descricao" class="form-label">Descrição</label>
                         <input type="text" id="id_descricao" name="descricao" class="form-control" placeholder="Ex: Supermercado" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="id_categoria" class="form-label">Categoria</label>
                         <select id="id_categoria" name="categoria" class="form-control" required>
@@ -24,21 +27,22 @@
                             {% endfor %}
                         </select>
                     </div>
+
                     <div class="mb-3">
                         <label for="id_data" class="form-label">Data</label>
                         <input type="date" id="id_data" name="data" class="form-control" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="id_valor" class="form-label">Valor</label>
                         <input type="text" id="id_valor" name="valor" class="form-control" placeholder="Ex: 150,00" required>
                     </div>
                 </form>
             </div>
+
             <div class="modal-footer">
-                <div class="d-flex justify-content-between">  
-                    <button type="submit" class="btn btn-success btn-lg" form="despesaForm">Salvar Despesa</button>
-                    <button type="button" class="btn btn-secondary ms-3" data-bs-dismiss="modal">Cancelar</button>
-                </div>
+                <button type="submit" class="btn btn-success btn-lg" form="despesaForm">Salvar Despesa</button>
+                <button type="button" class="btn btn-secondary ms-3" data-bs-dismiss="modal">Cancelar</button>
             </div> 
         </div>
     </div>
@@ -47,44 +51,55 @@
 <script>
     $(document).ready(function() {
         $('#despesaForm').submit(function(event) {
-            event.preventDefault(); // Impedir o envio padrão do formulário
+            event.preventDefault(); // Impede o envio padrão do formulário
 
-            // Desativar o botão de submit
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            var formData = $(this).find(':input').not(':submit').serialize();
+
+            // Desativar o botão de submit para evitar duplo clique
             $('#despesaForm button[type="submit"]').prop('disabled', true);
 
             $.ajax({
                 type: 'POST',
                 url: $(this).attr('action'),
-                data: $(this).serialize(),
+                data: formData,
                 dataType: 'json',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken
+                },
                 success: function(response) {
                     if (response.success) {
-                        // Exibir a mensagem de sucesso no modal
-                        $('#mensagem-sucesso-despesa').text(response.message).show(); 
+                        $('#mensagem-sucesso-despesa').text(response.message).show();
+                        $('#mensagem-erro-despesa').hide();
                         $('#despesaForm')[0].reset();
                         $('#id_descricao').focus();
                     } else {
-                        // Exibir os erros de validação
                         let errorMessages = '';
-                        $.each(response.errors, function(field, errors) {
-                            errorMessages += field + ': ' + errors.join(', ') + '\n';
-                        });
-                        alert(errorMessages);
+                        if (response.errors) {
+                            $.each(response.errors, function(field, errors) {
+                                errorMessages += field + ': ' + errors.join(', ') + '<br>';
+                            });
+                        } else {
+                            errorMessages = response.message;
+                        }
+                        $('#mensagem-erro-despesa').html(errorMessages).show();
                     }
                 },
-                error: function() {
-                    alert('Ocorreu um erro ao salvar a despesa.');
+                error: function(xhr, status, error) {
+                    $('#mensagem-erro-despesa').html('Ocorreu um erro ao salvar a despesa.').show();
                 },
                 complete: function() {
-                    $('#despesaForm button[type="submit"]').prop('disabled', false); 
+                    // Reativar o botão de submit após a requisição
+                    $('#despesaForm button[type="submit"]').prop('disabled', false);
                 }
             });
         });
 
-        // Evento de fechamento do modal de despesa
-        $('#modalAdicionarDespesa').on('hidden.bs.modal', function () {
-            $('#mensagem-sucesso-despesa').hide(); // Esconder a mensagem ao fechar
-            location.reload(); // Recarrega a página
+        // Recarregar a página ao fechar o modal
+        $('#modalAdicionarDespesa').on('hidden.bs.modal', function() {
+            $('#mensagem-sucesso-despesa, #mensagem-erro-despesa').hide(); // Esconde as mensagens ao fechar o modal
+            location.reload(); // Recarrega a página para refletir as alterações
         });
     });
 </script>

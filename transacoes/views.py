@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 from .models import Receita, Despesa, Categoria
-from .forms import ReceitaForm, DespesaForm, CategoriaForm
+from .forms import ReceitaForm, DespesaForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from decimal import Decimal
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 
 
 @login_required
@@ -40,6 +41,7 @@ def adicionar_receita(request):
             return JsonResponse({'success': True, 'message': 'Receita salva com sucesso!'})
 
         else:
+            # Enviar os erros de validação do formulário
             return JsonResponse({'success': False, 'errors': form.errors})
 
     else:
@@ -53,55 +55,40 @@ def adicionar_despesa(request):
     if request.method == 'POST':
         data = request.POST.copy()
         data['valor'] = data['valor'].replace(',', '.')
-        form = DespesaForm(data, user=request.user)
         
+        form = DespesaForm(data, user=request.user)
+
         if form.is_valid():
             despesa = form.save(commit=False)
             despesa.usuario = request.user
             despesa.descricao = despesa.descricao.capitalize()
-            despesa.categoria.nome = despesa.categoria.nome.upper()
-            valor_formatado = form.cleaned_data['valor']
-            valor_sem_formato = str(valor_formatado).replace('R$ ', '')
-            despesa.valor = Decimal(valor_sem_formato)
+            
+            # Formatar valor para Decimal
+            despesa.valor = Decimal(data['valor'])
+            
             despesa.save()
 
+            # Resposta AJAX em caso de sucesso
             response_data = {'success': True, 'message': 'Despesa salva com sucesso!'}
             return JsonResponse(response_data)
 
         else:
+            # Resposta AJAX em caso de erros de validação
             response_data = {'success': False, 'errors': form.errors}
             return JsonResponse(response_data)
-    
+
     else:
+        # Preparar formulário e categorias para renderização inicial do modal
         form = DespesaForm(user=request.user)
-    
         categorias_despesa = Categoria.objects.filter(tipo='despesa', usuario=request.user)
-        context = {'form': form, 'categorias_despesa': categorias_despesa}
+
+        context = {
+            'form': form,
+            'categorias_despesa': categorias_despesa,
+        }
         return render(request, 'transacoes/adicionar_despesa.html', context)
 
 
-@login_required
-def adicionar_categoria(request):
-    if request.method == 'POST':
-        form = CategoriaForm(request.POST)
-        if form.is_valid():
-            nome_categoria = form.cleaned_data['nome'].upper()  # Converte o nome para maiúsculas
-            tipo_categoria = form.cleaned_data['tipo']
-            
-            # Verifica se a categoria já existe para o tipo especificado
-            if Categoria.objects.filter(nome=nome_categoria, tipo=tipo_categoria, usuario=request.user).exists():
-                return JsonResponse({'success': False, 'error': f'A categoria {nome_categoria} já foi cadastrada para {tipo_categoria}.'})
-            
-            categoria = form.save(commit=False)  # Não salva a categoria ainda
-            categoria.nome = nome_categoria  # Atribui o nome em maiúsculas
-            categoria.usuario = request.user  # Associa o usuário à categoria
-            categoria.save()  # Salva a categoria
-
-            return JsonResponse({'success': True, 'message': 'Categoria salva com sucesso!'})
-        
-        return JsonResponse({'success': False, 'error': 'Erro ao salvar categoria. Verifique os dados inseridos.'})
-
-    return JsonResponse({'success': False, 'error': 'Método não permitido.'})
 
 @login_required
 def transacoes_view(request):
@@ -183,17 +170,27 @@ def editar_transacao(request, transacao_id):
         return render(request, 'transacoes/editar_transacao.html', context)
 
 
+@require_POST
 @login_required
 def excluir_transacao(request, transacao_id):
     """
     View para excluir uma transação (receita ou despesa) via AJAX.
     """
     tipo = request.POST.get('tipo')
+    
+    if tipo not in ['receita', 'despesa']:
+        return JsonResponse({'success': False, 'error': 'Tipo de transação inválido.'}, status=400)
+
+    # Usar get_object_or_404 para obter a transação
     if tipo == 'receita':
         transacao = get_object_or_404(Receita, pk=transacao_id, usuario=request.user)
     elif tipo == 'despesa':
         transacao = get_object_or_404(Despesa, pk=transacao_id, usuario=request.user)
-    else:
-        return JsonResponse({'success': False, 'error': 'A transação já foi excluída. Atualize a página.'}, status=400)
+
+    # Excluindo a transação
     transacao.delete()
-    return JsonResponse({'success': True, 'message': f'{tipo.capitalize()} excluída com sucesso!'})
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'{tipo.capitalize()} excluída com sucesso!'
+    })

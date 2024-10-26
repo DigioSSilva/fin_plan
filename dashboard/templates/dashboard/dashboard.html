@@ -13,11 +13,36 @@
 
     .dashboard-card {
         border: none;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 20px; /* Mantendo o padding original */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
         border-radius: 8px;
         background-color: white;
-        /* Largura não foi alterada, mantendo o comportamento responsivo */
+        transition: transform 0.2s;
+    }
+
+    .dashboard-card:hover {
+        transform: scale(1.02);
+    }
+
+    .dashboard-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: black;  /* Título em preto */
+    }
+
+    .dashboard-card p {
+        font-size: 1.1rem;
+        margin: 10px 0; /* Aumentando o espaçamento entre as linhas */
+    }
+
+    .positive {
+        color: green;
+        font-weight: bold;
+    }
+
+    .negative {
+        color: red;
+        font-weight: bold;
     }
 
     .filters {
@@ -43,7 +68,7 @@
     }
 
     #despesasChart {
-        max-height: 300px; /* Reduzindo a altura do gráfico */
+        max-height: 300px;
     }
 </style>
 
@@ -84,8 +109,11 @@
     <div class="dashboard-grid">
         <div class="dashboard-card">
             <h2>Resumo Mensal</h2>
-            <p>Receita mensal: R$ {{ total_receitas|floatformat:2 }}</p>
-            <p>Despesa mensal: R$ {{ total_despesas|floatformat:2 }}</p>
+            <p>Receita mensal atual: <span class="positive">R$ {{ total_receitas|floatformat:2 }}</span></p>
+            <p>Despesa mensal atual: <span class="negative">R$ {{ total_despesas|floatformat:2 }}</span></p>
+            <p>Despesa mensal planejada: <span class="negative">R$ {{ total_planejamento|floatformat:2 }}</span></p>
+            <p>Saldo Atual: <span class="{% if saldo_atual <= 0 %}negative{% else %}positive{% endif %}">R$ {{ saldo_atual|floatformat:2 }}</span></p>
+            <p>Saldo Planejado: <span class="{% if saldo_planejado <= 0 %}negative{% else %}positive{% endif %}">R$ {{ saldo_planejado|floatformat:2 }}</span></p>
         </div>
 
         <div class="dashboard-card">
@@ -139,7 +167,7 @@
                                 formatter: function(value, context) {
                                     return `${context.chart.data.labels[context.dataIndex]}\nR$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
                                 },
-                                color: '#000',  // Cor preta para o texto
+                                color: '#000',
                                 font: {
                                     weight: 'bold',
                                     size: 14
