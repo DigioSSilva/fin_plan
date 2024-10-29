@@ -20,9 +20,10 @@ def adicionar_categoria(request):
         if form.is_valid():
             nome_categoria = form.cleaned_data['nome'].upper()
             tipo_categoria = form.cleaned_data['tipo']
-            montante_plan = form.cleaned_data['montante_plan']  # Montante do formulário
-
+            montante_plan = form.cleaned_data.get('montante_plan')
+            print(f"O montante plan passou por aqui: {montante_plan}")
             # Verifica se a categoria já existe para o tipo especificado
+                  
             if Categoria.objects.filter(nome=nome_categoria, tipo=tipo_categoria, usuario=request.user).exists():
                 return JsonResponse({
                     'success': False,
@@ -33,14 +34,17 @@ def adicionar_categoria(request):
             categoria.nome = nome_categoria
             categoria.usuario = request.user
 
-            # Formatar montante_plan para Decimal
-            try:
-                categoria.montante_plan = Decimal(str(montante_plan).replace(',', '.'))
-            except Exception as e:
-                return JsonResponse({'success': False, 'error': 'Montante inválido.'})
+            #Montante plan apenas para despesas
+            if tipo_categoria == 'despesa':
+            
+                try:
+                    categoria.montante_plan = Decimal(str(montante_plan).replace(',', '.'))
+                except Exception as e:
+                    return JsonResponse({'success': False, 'error': 'Montante inválido.'})
+            else: 
+                categoria.montan_plan = Decimal('0')
 
             categoria.save()
-
             return JsonResponse({'success': True, 'message': 'Categoria salva com sucesso!'})
 
         return JsonResponse({'success': False, 'error': 'Erro ao salvar categoria. Verifique os dados inseridos.'})

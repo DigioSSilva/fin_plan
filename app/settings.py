@@ -29,9 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['Digios788.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -88,8 +88,12 @@ WSGI_APPLICATION = "app.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": 'finplan',
+        "USER": 'postgres',
+        "PASSWORD": config('DB_PASSWORD'),
+        "HOST": 'localhost',
+        "PORT": '5432',
     }
 }
 
@@ -147,6 +151,7 @@ DEFAULT_FROM_EMAIL = 'seu_email@dominio.com'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

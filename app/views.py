@@ -1,5 +1,7 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
 
-def test_login(request):
-    return render(request, 'registration/login.html')
+def home_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    else:
+        return redirect('login')

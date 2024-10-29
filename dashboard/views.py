@@ -45,8 +45,8 @@ def dashboard(request):
         data__month=current_month, data__year=current_year, usuario=request.user
     )
 
-    total_receitas = sum(receita.valor for receita in receitas_mes)
-    total_despesas = sum(despesa.valor for despesa in despesas_mes)
+    total_receitas = sum(receita.valor for receita in receitas_mes) or 0
+    total_despesas = sum(despesa.valor for despesa in despesas_mes) or 0
 
     #Buscar as despesas do mes por categoria
     despesas_por_categoria = Despesa.objects.filter(
@@ -60,7 +60,7 @@ def dashboard(request):
     print(f"Totais: {totais}")
 
     #Buscar montante total planejado
-    total_planejamento = Categoria.objects.filter(tipo= 'despesa', usuario=request.user).aggregate(Sum('montante_plan'))['montante_plan__sum']
+    total_planejamento = Categoria.objects.filter(tipo= 'despesa', usuario=request.user).aggregate(Sum('montante_plan'))['montante_plan__sum'] or 0
 
     #Saldo Atual e saldo planejado
     saldo_atual = total_receitas - total_despesas

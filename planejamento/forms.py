@@ -2,7 +2,6 @@ from django import forms
 from .models import Categoria
 
 class CategoriaForm(forms.ModelForm):
-    # Adicionar a classe 'form-control' aos campos do formulário
     def __init__(self, *args, **kwargs):
         super(CategoriaForm, self).__init__(*args, **kwargs)
         self.fields['nome'].widget.attrs.update({'class': 'form-control'})
@@ -14,4 +13,22 @@ class CategoriaForm(forms.ModelForm):
 
     class Meta:
         model = Categoria
-        fields = ['nome', 'tipo', 'montante_plan']  # Incluir montante_plan
+        fields = ['nome', 'tipo', 'montante_plan'] 
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        tipo = cleaned_data.get('tipo')
+        montante_plan = cleaned_data.get('montante_plan')
+
+        # Se for 'receita', ignorar a validação do montante_plan
+        if tipo == 'despesa':
+            if montante_plan is None or montante_plan <= 0:
+                self.add_error(
+                    'montante_plan', 
+                    'Por favor, insira um montante estimado de gastos para a categoria de despesa.'
+                )
+        else:
+            # Limpar o montante_plan para receitas (definido como None se não for relevante)
+            cleaned_data['montante_plan'] = None
+
+        return cleaned_data
