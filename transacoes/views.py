@@ -1,11 +1,13 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from .models import Receita, Despesa, Categoria
 from .forms import ReceitaForm, DespesaForm
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from decimal import Decimal
 from django.http import JsonResponse
+from app.utils import financial_data
+from datetime import datetime
+
 
 
 @login_required
@@ -96,8 +98,8 @@ def transacoes_view(request):
     categorias_despesa = Categoria.objects.filter(tipo='despesa', usuario=request.user)
 
     #Filtrar 10 mais recentes (mudar a lógica posteriormente)
-    receitas = Receita.objects.filter(usuario=request.user).order_by('-data')[:10]
-    despesas = Despesa.objects.filter(usuario=request.user).order_by('-data')[:10]
+    receitas = Receita.objects.filter(usuario=request.user).order_by('-data')
+    despesas = Despesa.objects.filter(usuario=request.user).order_by('-data')
 
     for receita in receitas:
         receita.tipo = 'receita'
@@ -112,6 +114,16 @@ def transacoes_view(request):
         'categorias_despesa': categorias_despesa,
         'transacoes': transacoes
     }
+    #Lógica para valores dos saldos no topo da pagina
+    now = datetime.now()
+    current_month = now.month
+    current_year = now.year
+    financial_context = financial_data(
+        request,
+        selected_month=current_month,
+        selected_year=current_year
+    )
+    context.update(financial_context)
     return render (request, 'transacoes/transacoes.html', context)
 
 @login_required

@@ -1,87 +1,99 @@
-<!-- Modal Adicionar Categoria -->
 <div class="modal fade" id="modalAdicionarCategoria" tabindex="-1" aria-labelledby="modalAdicionarCategoriaLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAdicionarCategoriaLabel">Adicionar Categoria</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="mensagem-sucesso-categoria" class="alert alert-success" style="display: none;"></div>
-                <div id="mensagem-erro-categoria" class="alert alert-danger" style="display: none;"></div>
-                <form id="categoriaForm" method="post" action="{% url 'adicionar_categoria' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="id_nome" class="form-label">Nome da Categoria</label>
-                        <input type="text" id="id_nome" name="nome" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="id_tipo" class="form-label">Tipo</label>
-                        <select id="id_tipo" name="tipo" class="form-control" required>
-                            <option value="receita">Receita</option>
-                            <option value="despesa">Despesa</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="id_montante_plan" class="form-label">Montante Planejado</label>
-                        <input type="text" id="id_montante_plan" name="montante_plan" class="form-control" step="0.01" placeholder="Ex: 500,00" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button id="btnSalvarCategoria" type="button" class="btn btn-primary btn-lg">Salvar Categoria</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            </div>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="background-color: var(--card-bg);">
+        <!-- Header do Modal -->
+        <div class="modal-header border-0" style="background-color: var(--card-success-bg);">
+          <h5 class="modal-title d-flex align-items-center gap-2" id="modalAdicionarCategoriaLabel">
+            <i class="fas fa-folder-plus text-primary" style="color: var(--card-success-text);"></i>
+            <span class="fw-bold" style="color: var(--card-success-text);">Adicionar Categoria</span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+  
+        <!-- Corpo do Modal -->
+        <div class="modal-body p-4">
+          <form id="categoriaForm" method="post">
+            {% csrf_token %}
+  
+            <!-- Mensagens de Feedback -->
+            <div id="mensagem-sucesso-categoria" class="alert alert-success d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+              <i class="fas fa-check-circle me-2"></i>
+              <span>Categoria salva com sucesso!</span>
+            </div>
+            <div id="mensagem-erro-categoria" class="alert alert-danger d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              <span></span>
+            </div>
+  
+            <!-- Campo Nome -->
+            <div class="mb-4">
+              <label for="id_nome" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Nome da Categoria</label>
+              <div class="input-group">
+                <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                  <i class="fas fa-folder text-primary" style="color: var(--card-success-text);"></i>
+                </span>
+                <input type="text" id="id_nome" name="nome" 
+                       class="form-control border-0"
+                       style="background-color: var(--card-neutral-bg); color: var(--text-color);"
+                       placeholder="Ex: Alimentação" required>
+              </div>
+            </div>
+            
+             <!-- Campo Tipo -->
+            <div class="mb-4">
+              <label for="id_tipo" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Tipo</label>
+              <div class="input-group">
+                <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                  <i class="fas fa-tag text-primary" style="color: var(--card-success-text);"></i>
+                </span>
+                <select id="id_tipo" name="tipo" 
+                        class="form-select border-0" 
+                        style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                        required>
+                  <option value="receita">Receita</option>
+                  <option value="despesa">Despesa</option>
+                </select>
+              </div>
+            </div>
+  
+            <!-- Campo Montante -->
+            <div class="mb-4">
+              <label for="id_montante_plan" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Montante Planejado</label>
+              <div class="input-group">
+                <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                  <i class="fas fa-dollar-sign text-primary" style="color: var(--card-success-text);"></i>
+                </span>
+                <input type="text" id="id_montante_plan" name="montante_plan" 
+                       class="form-control border-0" 
+                       placeholder="Ex: 500,00" 
+                       style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                       required>
+              </div>
+            </div>
+  
+            <!-- Botões -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button type="button" class="btn" style="background-color: var(--card-neutral-bg); color: var(--text-dark);" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-check me-2"></i>Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
-    $(document).ready(function() {
-        // Código para submit do formulário de categoria
-        $('#categoriaForm').off('submit').on('submit', function(event) {
-            console.log("Formulário de categoria enviado"); // Log para verificar
-            event.preventDefault(); // Impedir o envio padrão do formulário
-            event.stopPropagation(); // Impedir que o evento se propague
+  <style>
+    /* Estilo para o placeholder */
+    input::placeholder {
+      color: var(--text-color) !important; /* Força a cor do placeholder */
+      opacity: 1;
+    }
 
-            // Desativar o botão de submit
-            $('#categoriaForm button[type="submit"]').prop('disabled', true); 
-
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'),
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        $('#mensagem-sucesso-categoria').text(response.message).show(); 
-                        $('#mensagem-erro-categoria').hide(); // Esconder mensagem de erro
-                        $('#id_nome').val(''); // Limpar apenas o campo de nome
-                        $('#id_nome').focus(); // Focar novamente no campo de nome
-                    } else {
-                        $('#mensagem-erro-categoria').text(response.error).show(); 
-                        $('#mensagem-sucesso-categoria').hide(); // Esconder mensagem de sucesso
-                    }
-                },
-                error: function() {
-                    alert('Ocorreu um erro ao salvar a categoria.');
-                },
-                complete: function() {
-                    $('#categoriaForm button[type="submit"]').prop('disabled', false); 
-                }
-            });
-        });
-
-        // Evento para o botão "Salvar Categoria"
-        $('#btnSalvarCategoria').on('click', function() {
-            $('#categoriaForm').submit(); // Dispara o evento de submit do formulário
-        });
-
-        // Evento de fechamento do modal de categoria
-        $('#modalAdicionarCategoria').on('hidden.bs.modal', function () {
-            $('#mensagem-sucesso-categoria').hide(); // Esconder a mensagem ao fechar
-            $('#mensagem-erro-categoria').hide(); // Esconder mensagem de erro ao fechar
-            // Não redefinindo o tipo para receita
-        });
-    });
-</script>
+    .form-select {
+      background-color: var(--card-bg) !important; /* Define o fundo da caixa como preto */
+      color: var(--text-color) !important; /* Define a cor do texto como a cor de texto padrão */
+    }
+    
+  </style>

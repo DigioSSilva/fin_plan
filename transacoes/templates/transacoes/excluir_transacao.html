@@ -1,18 +1,59 @@
 <div class="modal fade" id="modalExcluirTransacao{{ transacao.id }}" tabindex="-1" aria-labelledby="modalExcluirTransacaoLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalExcluirTransacaoLabel">Excluir    Transação</h5>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="background-color: var(--card-bg);">
+      <!-- Header do Modal -->
+      <div class="modal-header border-0" style="background-color: var(--card-danger-bg);">
+        <h5 class="modal-title d-flex align-items-center gap-2" id="modalExcluirTransacaoLabel">
+          <i class="fas fa-trash" style="color: var(--card-danger-text);"></i>
+          <span class="fw-bold" style="color: var(--card-danger-text);">Excluir Transação</span>
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        Tem certeza que deseja    excluir esta transação?
-        <p><strong>Descrição:</strong> {{ transacao.descricao }}</p>
-        <p><strong>Valor:</strong> R$ {{ transacao.valor|floatformat:2 }}</p>
+
+      <!-- Corpo do Modal -->
+      <div class="modal-body p-4">
+        <div class="alert d-flex align-items-start gap-3 mb-4 border-0 shadow-sm" 
+             style="background-color: var(--card-warning-bg); color: var(--card-warning-text);">
+          <i class="fas fa-exclamation-triangle mt-1"></i>
+          <span>Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.</span>
+        </div>
+
+        <!-- Detalhes da Transação -->
+        <div class="card border-0 p-3" style="background-color: var(--card-neutral-bg);">
+          <div class="d-flex flex-column gap-3">
+            <!-- Descrição -->
+            <div class="d-flex align-items-center">
+              <i class="fas fa-file-alt me-3" style="color: var(--text-color-light);"></i>
+              <div>
+                <small class="d-block" style="color: var(--text-color);">Descrição</small>
+                <span class="fw-semibold" style="color: var(--text-dark);">{{ transacao.descricao }}</span>
+              </div>
+            </div>
+
+            <!-- Valor -->
+            <div class="d-flex align-items-center">
+              <i class="fas fa-dollar-sign me-3" style="color: var(--text-color-light);"></i>
+              <div>
+                <small class="d-block" style="color: var(--text-color);">Valor</small>
+                <span class="fw-semibold {% if transacao.tipo == 'receita' %}text-success{% else %}text-danger{% endif %}">
+                  {% if transacao.tipo == 'despesa' %}- {% endif %}R$ {{ transacao.valor|floatformat:2 }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger"    onclick="excluirTransacao({{ transacao.id }}, '{{transacao.tipo}}')">Excluir</button> 
+
+      <!-- Footer do Modal -->
+      <div class="modal-footer border-0 pt-0">
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn" style="background-color: var(--card-neutral-bg); color: var(--text-dark);" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Cancelar
+          </button>
+          <button type="button" class="btn btn-danger px-4" onclick="excluirTransacao({{ transacao.id }}, '{{ transacao.tipo }}')">
+            <i class="fas fa-trash me-2"></i>Excluir
+          </button>
+        </div>
       </div>
     </div>
   </div>

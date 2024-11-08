@@ -1,92 +1,243 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load l10n %} 
+{% load l10n %}
 
 {% block title %}Transações{% endblock %}
 
 {% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold mb-3" style="color: var(--text-dark);">Gerenciamento Financeiro</h1>
+            <p style="color: var(--text-color);">Acompanhe suas receitas e despesas</p>
+        </div>
+    </div>
 
-<div class="container mt-4"> 
-    <h1 class="mb-4">Transações</h1>
-
-    <div class="row my-4 justify-content-around"> 
+    <!-- Cards de Resumo -->
+    <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-body text-center"> 
-                    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarReceita">
-                        <i class="fas fa-plus me-2"></i> Adicionar Receita
-                    </button>
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-bg);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 style="color: var(--text-color);" class="mb-2">Saldo Total</h6>
+                            <h3 class="{% if saldo_atual >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">
+                                R$ {{ saldo_atual|default:"0.00"|floatformat:2 }}
+                            </h3>
+                        </div>
+                        <div style="background-color: var(--card-neutral-bg);" class="rounded-circle p-3">
+                            <i class="fas fa-wallet fa-2x {% if saldo_atual >= 0 %}text-success{% else %}text-danger{% endif %}"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-body text-center">
-                    <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#modalAdicionarDespesa"> 
-                        <i class="fas fa-minus me-2"></i> Adicionar Despesa
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-success-bg);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 style="color: var(--text-color);" class="mb-2">Receitas do Mês</h6>
+                            <h3 style="color: var(--card-success-text);" class="mb-0">R$ {{ total_receitas|default:"0.00"|floatformat:2 }}</h3>
+                        </div>
+                        <div class="rounded-circle p-3" style="background-color: var(--card-success-bg);">
+                            <i class="fas fa-arrow-up fa-2x" style="color: var(--card-success-text);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-danger-bg);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 style="color: var(--text-color);" class="mb-2">Despesas do Mês</h6>
+                            <h3 style="color: var(--card-danger-text);" class="mb-0">R$ {{ total_despesas|default:"0.00"|floatformat:2 }}</h3>
+                        </div>
+                        <div class="rounded-circle p-3" style="background-color: var(--card-danger-bg);">
+                            <i class="fas fa-arrow-down fa-2x" style="color: var(--card-danger-text);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-success-bg);">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h4 class="d-flex align-items-center mb-2">
+                            <i class="fas fa-plus-circle me-2" style="color: var(--card-success-text);"></i>
+                            <span style="color: var(--card-success-text);">Adicionar Receita</span>
+                        </h4>
+                        <p style="color: var(--text-color);" class="mb-0">Registre seus ganhos</p>
+                    </div>
+                    <button type="button" class="btn btn-success rounded-circle p-3" data-bs-toggle="modal" data-bs-target="#modalAdicionarReceita">
+                        <i class="fas fa-plus fa-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-danger-bg);">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h4 class="d-flex align-items-center mb-2">
+                            <i class="fas fa-minus-circle me-2" style="color: var(--card-danger-text);"></i>
+                            <span style="color: var(--card-danger-text);">Adicionar Despesa</span>
+                        </h4>
+                        <p style="color: var(--text-color);" class="mb-0">Registre seus gastos</p>
+                    </div>
+                    <button type="button" class="btn btn-danger rounded-circle p-3" data-bs-toggle="modal" data-bs-target="#modalAdicionarDespesa">
+                        <i class="fas fa-minus fa-lg"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <h2>Suas transações recentes</h2>
-
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Data</th>
-                    <th>Categoria</th>
-                    <th>Tipo</th>
-                    <th>Ações</th> 
-                </tr>
-            </thead>
-            <tbody>
-            {% for transacao in transacoes %}
-                <tr>
-                    <td>{{ transacao.descricao }}</td>
-                    <td>
-                        {% if transacao.tipo == 'receita' %}
-                            <span class="text-success">R$ {{ transacao.valor|floatformat:2 }}</span> 
-                        {% else %}
-                            <span class="text-danger">- R$ {{ transacao.valor|floatformat:2 }}</span> 
-                        {% endif %}
-                    </td>
-                    <td>{{ transacao.data }}</td>
-                    <td>{{ transacao.categoria.nome }}</td> 
-                    <td>
-                        {% if transacao.tipo == 'receita' %}
-                            <span class="badge bg-success">Receita</span>
-                        {% else %}
-                            <span class="badge bg-danger">Despesa</span>
-                        {% endif %}
-                    </td>
-                    <td> 
-                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirTransacao{{ transacao.id }}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        {% include 'transacoes/excluir_transacao.html' %} 
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <!-- Tabela de Transações -->
+    <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-bg);">
+        <div class="card-body p-4">
+            <h4 class="card-title d-flex align-items-center mb-4" style="color: var(--text-dark);">
+                <i class="fas fa-list text-primary me-2"></i>
+                Suas transações recentes
+            </h4>
+            <div class="table-responsive">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th style="color: var(--text-color); background-color: var(--card-bg);">Descrição</th>
+                            <th style="color: var(--text-color); background-color: var(--card-bg);">Valor</th>
+                            <th style="color: var(--text-color); background-color: var(--card-bg);">Data</th>
+                            <th style="color: var(--text-color); background-color: var(--card-bg);">Categoria</th>
+                            <th style="color: var(--text-color); background-color: var(--card-bg);">Tipo</th>
+                            <th style="color: var(--text-color); background-color: var(--card-bg);">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for transacao in transacoes %}
+                        <tr style="background-color: var(--card-bg);">
+                            <td style="color: var(--text-dark);">{{ transacao.descricao }}</td>
+                            <td>
+                                {% if transacao.tipo == 'receita' %}
+                                    <span style="color: var(--card-success-text);" class="fw-bold">R$ {{ transacao.valor|floatformat:2 }}</span>
+                                {% else %}
+                                    <span style="color: var(--card-danger-text);" class="fw-bold">- R$ {{ transacao.valor|floatformat:2 }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="color: var(--text-dark);">{{ transacao.data }}</td>
+                            <td>
+                                <span class="badge rounded-3" style="background-color: var(--card-neutral-bg); color: var(--text-dark);">
+                                    {{ transacao.categoria.nome }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if transacao.tipo == 'receita' %}
+                                    <span class="badge rounded-3" style="background-color: var(--card-success-bg); color: var(--card-success-text);">Receita</span>
+                                {% else %}
+                                    <span class="badge rounded-3" style="background-color: var(--card-danger-bg); color: var(--card-danger-text);">Despesa</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm" style="background-color: var(--card-neutral-bg);" data-bs-toggle="modal" data-bs-target="#modalExcluirTransacao{{ transacao.id }}">
+                                    <i class="fas fa-trash" style="color: var(--card-danger-text);"></i>
+                                </button>
+                                {% include 'transacoes/excluir_transacao.html' %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 {% include 'transacoes/adicionar_receita.html' %}
 {% include 'transacoes/adicionar_despesa.html' %}
 
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .container > .row > .col-md-4 .card:hover,
+    .container > .row > .col-md-6 .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px var(--shadow-color);
+    }
+
+    .rounded-3 {
+        border-radius: 1rem !important;
+    }
+
+    .btn {
+        border-radius: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        padding: 0.6rem 1.5rem;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    .table {
+        margin-bottom: 0;
+        color: var(--text-dark);
+        background-color: var(--card-bg);
+    }
+
+    .table th,
+    .table td {
+        background-color: var(--card-bg);
+        border: none;
+        padding: 1rem;
+    }
+
+    .table th {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .table td {
+        color: var(--text-dark);
+        vertical-align: middle;
+    }
+
+    .table tr {
+        background-color: var(--card-bg);
+        transition: background-color 0.3s ease;
+    }
+
+    .table tr:hover {
+        background-color: var(--card-neutral-bg);
+    }
+
+    .table-responsive {
+        background-color: var(--card-bg);
+        border-radius: 0.5rem;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
+    // Função para excluir transação
     function excluirTransacao(transacaoId, tipo) {
         console.log("Função excluirTransacao chamada com ID:", transacaoId, "Tipo:", tipo);
-
         $.ajax({
             type: 'POST',
-            url: '/transacoes/excluir_transacao/' + transacaoId + '/', 
+            url: '/transacoes/excluir_transacao/' + transacaoId + '/',
             data: {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 tipo: tipo
@@ -94,9 +245,9 @@
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    location.reload(); 
+                    location.reload();
                 } else {
-                    alert('Erro ao excluir a transação: ' + response.error); 
+                    alert('Erro ao excluir a transação: ' + response.error);
                 }
             },
             error: function() {
@@ -104,6 +255,83 @@
             }
         });
     }
-</script>
 
+    // Função para salvar receita
+    function salvarReceita(event) {
+        event.preventDefault();
+        var form = document.getElementById('receitaForm');
+        var formData = new FormData(form);
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "adicionar_receita" %}',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    $('#mensagem-sucesso-receita').text(response.message).show();
+                    $('#mensagem-erro-receita').hide();
+                    form.reset();
+                    setTimeout(function() {
+                        $('#mensagem-sucesso-receita').fadeOut('slow');
+                    }, 3000);
+                } else {
+                    var errorMessage = response.message || 'Erro ao salvar a receita.';
+                    $('#mensagem-erro-receita').text(errorMessage).show();
+                    $('#mensagem-sucesso-receita').hide();
+                }
+            },
+            error: function() {
+                $('#mensagem-erro-receita').text('Erro ao processar a requisição.').show();
+                $('#mensagem-sucesso-receita').hide();
+            }
+        });
+    }
+
+    // Função para salvar despesa
+    function salvarDespesa(event) {
+        event.preventDefault();
+        var form = document.getElementById('despesaForm');
+        var formData = new FormData(form);
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "adicionar_despesa" %}',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    $('#mensagem-sucesso-despesa').text(response.message).show();
+                    $('#mensagem-erro-despesa').hide();
+                    form.reset();
+                    setTimeout(function() {
+                        $('#mensagem-sucesso-despesa').fadeOut('slow');
+                    }, 3000);
+                } else {
+                    var errorMessage = response.message || 'Erro ao salvar a despesa.';
+                    $('#mensagem-erro-despesa').text(errorMessage).show();
+                    $('#mensagem-sucesso-despesa').hide();
+                }
+            },
+            error: function() {
+                $('#mensagem-erro-despesa').text('Erro ao processar a requisição.').show();
+                $('#mensagem-sucesso-despesa').hide();
+            }
+        });
+    }
+
+    // Inicialização quando o documento estiver pronto
+    $(document).ready(function() {
+        // Handlers para os formulários
+        document.getElementById('receitaForm').addEventListener('submit', salvarReceita);
+        document.getElementById('despesaForm').addEventListener('submit', salvarDespesa);
+
+        // Atualizar página ao fechar os modais
+        $('#modalAdicionarReceita, #modalAdicionarDespesa').on('hidden.bs.modal', function() {
+            window.location.reload();
+        });
+    });
+</script>
 {% endblock %}

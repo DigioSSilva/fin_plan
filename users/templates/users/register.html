@@ -6,53 +6,296 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Conta</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <style>
+        :root {
+            --gradient-start: #7367F0;
+            --gradient-end: #8E44AD;
+            --input-bg: #F8F9FA;
+            --input-color: #6E6B7B;
+        }
+
+        [data-bs-theme="dark"] {
+            --input-bg: #283046;
+            --input-color: #B4B7BD;
+        }
+
         body {
-            font-size: 1.2rem; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--body-bg);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, var(--gradient-start) 0%, transparent 70%);
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            position: relative;
+        }
+
+        .auth-card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0.3rem;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+        }
+
+        .auth-header {
+            padding: 2.5rem 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            margin-bottom: 2rem;
+        }
+
+        .auth-title-icon {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .auth-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-body {
+            padding: 0 2.5rem 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        .form-label {
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group {
+            border-radius: 1rem;
+            background-color: var(--input-bg);
+            transition: all 0.3s ease;
+        }
+
+        .input-group:focus-within {
+            box-shadow: 0 0 0 2px var(--gradient-start);
+        }
+
+        .input-group-text {
+            background-color: transparent;
+            border: none;
+            color: var(--gradient-start);
+            padding: 0.75rem 1rem;
+        }
+
         .form-control {
-            height: 50px; 
-            font-size: 1.2rem; 
+            background-color: transparent;
+            border: none;
+            color: var(--input-color);
+            font-size: 1rem;
+            height: 3.5rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
         }
-        .btn {
-            height: 50px; 
-            font-size: 1.2rem;
+
+        .form-control:focus {
+            background-color: transparent;
+            box-shadow: none;
+            color: var(--input-color);
         }
-        h2 {
-            font-size: 2rem; 
+
+        .password-toggle {
+            background: none;
+            border: none;
+            color: var(--gradient-start);
+            cursor: pointer;
+            padding: 0.75rem 1rem;
         }
-        .input-field {
-            width: 100%; 
+
+        .password-toggle:focus {
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            height: 3.5rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1.5rem rgba(115, 103, 240, 0.4);
+        }
+
+        .auth-footer {
+            border-top: 1px solid rgba(115, 103, 240, 0.1);
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            text-align: center;
+        }
+
+        .auth-footer p {
+            color: var(--text-color);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .auth-footer a {
+            color: var(--gradient-start);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: var(--gradient-end);
+        }
+
+        .invalid-feedback {
+            color: #EA5455;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 576px) {
+            .auth-card {
+                margin: 1rem;
+            }
+            .auth-header {
+                padding: 2rem 1.5rem 1rem;
+            }
+            .auth-body {
+                padding: 0 1.5rem 1.5rem;
+            }
+            .auth-title {
+                font-size: 1.75rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
-        <div class="card shadow p-4 w-100 max-width-400"> 
-            <h2 class="text-center mb-4">Criar Conta</h2> 
-            <form method="post" action="">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="form-group">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control input-field" value="{{ field.value|default_if_none:'' }}"> 
-                        {% if field.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in field.errors %}
-                                    {{ error }}
-                                {% endfor %}
+    <div class="auth-container d-flex justify-content-center align-items-center">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-title-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h2 class="auth-title">Criar Conta</h2>
+            </div>
+
+            <!-- Body -->
+            <div class="auth-body">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas {% if field.name == 'username' %}fa-user{% elif field.name == 'email' %}fa-envelope{% elif field.name == 'password' %}fa-lock{% elif field.name == 'password2' %}fa-key{% endif %}"></i>
+                                </span>
+                                <input type="{% if 'password' in field.name %}password{% else %}{{ field.field.widget.input_type }}{% endif %}"
+                                       name="{{ field.name }}"
+                                       id="{{ field.id_for_label }}"
+                                       class="form-control {% if field.errors %}is-invalid{% endif %}"
+                                       value="{{ field.value|default_if_none:'' }}"
+                                       placeholder="{{ field.label }}"
+                                       {% if field.field.required %}required{% endif %}>
+                                {% if 'password' in field.name %}
+                                    <button type="button" class="password-toggle" onclick="togglePassword('{{ field.id_for_label }}')">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-primary btn-block">Criar Conta</button>
-            </form>
-            <div class="mt-3 text-center"> 
-                <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login aqui</a></p>
+                            {% if field.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Criar Conta
+                    </button>
+                </form>
+
+                <!-- Footer -->
+                <div class="auth-footer">
+                    <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login aqui</a></p>
+                </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,19 +1,61 @@
 <div class="modal fade" id="modalExcluirCategoria{{ categoria.id }}" tabindex="-1" aria-labelledby="modalExcluirCategoriaLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalExcluirCategoriaLabel">Excluir Categoria</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Tem certeza que deseja excluir esta categoria?
-                <p><strong>Nome:</strong> {{ categoria.nome }}</p>
-                <p><strong>Valor Atribuído:</strong> R$ {{ categoria.montante_plan|floatformat:2 }}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" onclick="excluirCategoria({{ categoria.id }})">Excluir</button> 
-            </div>
-        </div>
-    </div>
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-sm" style="background-color: var(--card-bg);">
+          <!-- Header do Modal -->
+          <div class="modal-header border-0" style="background-color: var(--card-danger-bg);">
+              <h5 class="modal-title d-flex align-items-center gap-2" id="modalExcluirCategoriaLabel" style="color: var(--text-dark);">
+                  <i class="fas fa-trash" style="color: var(--card-danger-text);"></i>
+                  <span class="fw-bold">Excluir Categoria</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <!-- Corpo do Modal -->
+          <div class="modal-body p-4">
+              <!-- Mensagem de Erro -->
+              <div id="mensagem-erro-excluir-{{ categoria.id }}" class="alert d-flex align-items-center shadow-sm border-0 mb-4 d-none" style="background-color: var(--card-danger-bg);">
+                  <i class="fas fa-exclamation-circle me-2" style="color: var(--card-danger-text);"></i>
+                  <span style="color: var(--card-danger-text);"></span>
+              </div>
+
+              <!-- Alerta de Confirmação -->
+              <div class="alert d-flex align-items-start gap-3 mb-4 border-0" style="background-color: var(--card-warning-bg);">
+                  <i class="fas fa-exclamation-triangle mt-1" style="color: var(--card-warning-text);"></i>
+                  <span style="color: var(--text-dark);">Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita.</span>
+              </div>
+
+              <!-- Detalhes -->
+              <div class="rounded-3 p-3" style="background-color: var(--card-neutral-bg);">
+                  <div class="d-flex flex-column gap-2">
+                      <div class="d-flex align-items-center">
+                          <i class="fas fa-folder me-3" style="color: var(--text-color);"></i>
+                          <div>
+                              <small style="color: var(--text-color);">Nome da Categoria</small>
+                              <div style="color: var(--text-dark);" class="fw-semibold">{{ categoria.nome }}</div>
+                          </div>
+                      </div>
+                      <div class="d-flex align-items-center">
+                          <i class="fas fa-dollar-sign me-3" style="color: var(--text-color);"></i>
+                          <div>
+                              <small style="color: var(--text-color);">Valor Atribuído</small>
+                              <div style="color: var(--text-dark);" class="fw-semibold">R$ {{ categoria.montante_plan|floatformat:2 }}</div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Footer do Modal -->
+          <div class="modal-footer border-0 pt-0">
+              <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: var(--card-neutral-bg); color: var(--text-dark);">
+                      <i class="fas fa-times me-2"></i>Cancelar
+                  </button>
+                  <button type="button" class="btn text-white" onclick="excluirCategoria({{ categoria.id }})" style="background-color: var(--card-danger-text);">
+                      <i class="fas fa-trash me-2"></i>Excluir
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
 </div>

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import CategoriaForm
 from .models import Categoria
@@ -71,3 +71,23 @@ def excluir_categoria(request, categoria_id):
         return JsonResponse({'success': False, 'error': 'Categoria não encontrada.'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+    
+
+@login_required
+def editar_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id, usuario=request.user)
+    
+    if request.method == "POST":
+        form = CategoriaForm(request.POST, instance=categoria)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': form.errors.as_json()})
+    else:
+        form = CategoriaForm(instance=categoria)
+
+    return render(request, 'planejamento/editar_categoria.html', {
+        'form': form,
+        'categoria': categoria
+    })

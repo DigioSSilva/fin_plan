@@ -1,0 +1,83 @@
+<div class="modal fade" id="modalEditarCategoria{{ categoria.id }}" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel{{ categoria.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="background-color: var(--card-bg);">
+          <!-- Header do Modal -->
+          <div class="modal-header bg-warning bg-opacity-10 border-0">
+              <h5 class="modal-title d-flex align-items-center gap-2" id="modalEditarCategoriaLabel{{ categoria.id }}" style="color: var(--text-dark);">
+                  <i class="fas fa-edit text-warning"></i>
+                  <span class="fw-bold">Editar Categoria</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <!-- Corpo do Modal -->
+          <div class="modal-body p-4">
+              <form id="editarCategoriaForm{{ categoria.id }}" method="post">
+                  {% csrf_token %}
+
+                  <!-- Mensagens de Feedback -->
+                  <div id="mensagem-sucesso-editar-{{ categoria.id }}" class="alert alert-success d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+                      <i class="fas fa-check-circle me-2"></i>
+                      <span>Categoria atualizada com sucesso!</span>
+                  </div>
+                  <div id="mensagem-erro-editar-{{ categoria.id }}" class="alert alert-danger d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+                      <i class="fas fa-exclamation-circle me-2"></i>
+                      <span></span>
+                  </div>
+
+                  <!-- Campo Nome -->
+                  <div class="mb-4">
+                      <label for="id_nome" class="form-label text-muted fw-semibold small mb-2" style="color: var(--text-color) !important;">Nome da Categoria</label>
+                      <div class="input-group">
+                          <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                              <i class="fas fa-folder text-warning"></i>
+                          </span>
+                          <input type="text" 
+                                 id="id_nome" 
+                                 name="nome" 
+                                 class="form-control border-0"
+                                 style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                                 value="{{ categoria.nome }}" 
+                                 required>
+                      </div>
+                  </div>
+
+                  <!-- Campo Valor Planejado -->
+                  <div class="mb-4">
+                      <label for="id_montante_plan" class="form-label text-muted fw-semibold small mb-2" style="color: var(--text-color) !important;">Valor Planejado</label>
+                      <div class="input-group">
+                          <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                              <i class="fas fa-dollar-sign text-warning"></i>
+                          </span>
+                          <input type="number" 
+                                 id="id_montante_plan" 
+                                 name="montante_plan" 
+                                 class="form-control border-0"
+                                 style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                                 value="{{ categoria.montante_plan }}"
+                                 step="0.01" 
+                                 required>
+                      </div>
+                  </div>
+
+                  <!-- Campo Tipo Oculto -->
+                  <input type="hidden" name="tipo" value="{{ categoria.tipo }}">
+
+                  <!-- Botões -->
+                  <div class="d-flex justify-content-end gap-2 mt-4">
+                      <button type="button" 
+                              class="btn" 
+                              data-bs-dismiss="modal" 
+                              style="background-color: var(--card-neutral-bg); color: var(--text-dark);">
+                          <i class="fas fa-times me-2"></i>Cancelar
+                      </button>
+                      <button type="submit" 
+                              class="btn btn-warning text-white px-4">
+                          <i class="fas fa-save me-2"></i>Salvar
+                      </button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>

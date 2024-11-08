@@ -1,98 +1,114 @@
 <div class="modal fade" id="modalAdicionarReceita" tabindex="-1" aria-labelledby="modalAdicionarReceitaLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalAdicionarReceitaLabel">Adicionar Receita</h5>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="background-color: var(--card-bg);">
+      <!-- Header do Modal -->
+      <div class="modal-header border-0" style="background-color: var(--card-success-bg);">
+        <h5 class="modal-title d-flex align-items-center gap-2" id="modalAdicionarReceitaLabel">
+          <i class="fas fa-plus-circle" style="color: var(--card-success-text);"></i>
+          <span class="fw-bold" style="color: var(--card-success-text);">Adicionar Receita</span>
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <form id="receitaForm" method="post" action="{% url 'adicionar_receita' %}">
+ 
+      <!-- Corpo do Modal -->
+      <div class="modal-body p-4">
+        <form id="receitaForm" method="post">
           {% csrf_token %}
-
-          <div id="mensagem-sucesso-receita" class="alert alert-success" style="display: none;">
-            Receita salva com sucesso!
+ 
+          <!-- Mensagens de Feedback -->
+          <div id="mensagem-sucesso-receita" class="alert alert-success d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>Receita salva com sucesso!</span>
           </div>
-          <div id="mensagem-erro-receita" class="alert alert-danger" style="display: none;"></div>
-
-          <div class="mb-3">
-            <label for="id_descricao" class="form-label">Descrição</label>
-            <input type="text" id="id_descricao" name="descricao" class="form-control" placeholder="Ex: Salário" required>
+          <div id="mensagem-erro-receita" class="alert alert-danger d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span></span>
           </div>
-
-          <div class="mb-3">
-            <label for="id_categoria" class="form-label">Categoria</label>
-            <select id="id_categoria" name="categoria" class="form-control" required>
-              <option value="" disabled selected>Selecione uma categoria</option>
-              {% for categoria in categorias_receita %}
-                <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
-              {% endfor %}
-            </select>
+ 
+          <!-- Campo Descrição -->
+          <div class="mb-4">
+            <label for="id_descricao" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Descrição</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-pen" style="color: var(--card-success-text);"></i>
+              </span>
+              <input type="text" id="id_descricao" name="descricao" 
+                     class="form-control border-0" 
+                     style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                     placeholder="Ex: Salário" required>
+            </div>
           </div>
-
-          <div class="mb-3">
-            <label for="id_data" class="form-label">Data</label>
-            <input type="date" id="id_data" name="data" class="form-control" required>
+ 
+          <!-- Campo Categoria -->
+          <div class="mb-4">
+            <label for="id_categoria" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Categoria</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-tag" style="color: var(--card-success-text);"></i>
+              </span>
+              <select id="id_categoria" name="categoria" 
+                      class="form-select border-0" 
+                      style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                      required>
+                <option value="" disabled selected>Selecione uma categoria</option>
+                {% for categoria in categorias_receita %}
+                  <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
-
-          <div class="mb-3">
-            <label for="id_valor" class="form-label">Valor</label>
-            <input type="text" id="id_valor" name="valor" class="form-control" placeholder="Ex: 1500,00" required>
+ 
+          <!-- Campo Data -->
+          <div class="mb-4">
+            <label for="id_data" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Data</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-calendar" style="color: var(--card-success-text);"></i>
+              </span>
+              <input type="date" id="id_data" name="data" 
+                     class="form-control border-0" 
+                     style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                     required>
+            </div>
+          </div>
+ 
+          <!-- Campo Valor -->
+          <div class="mb-4">
+            <label for="id_valor" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Valor</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-dollar-sign" style="color: var(--card-success-text);"></i>
+              </span>
+              <input type="text" id="id_valor" name="valor" 
+                     class="form-control border-0"
+                     style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                     placeholder="Ex: 1500,00" required>
+            </div>
+          </div>
+ 
+          <!-- Botões -->
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn" style="background-color: var(--card-neutral-bg); color: var(--text-dark);" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success px-4">
+              <i class="fas fa-check me-2"></i>Salvar
+            </button>
           </div>
         </form>
       </div>
-
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-success btn-lg" form="receitaForm">Salvar Receita</button>
-        <button type="button" class="btn btn-secondary ms-3" data-bs-dismiss="modal">Cancelar</button>
-      </div>
     </div>
   </div>
-</div>
+ </div>
 
-<script>
-  $(document).ready(function() {
-    $('#receitaForm').submit(function(event) {
-      event.preventDefault(); // Impede o envio padrão do formulário
+ <style>
+  /* Estilo para o placeholder */
+  input::placeholder {
+    color: var(--text-color) !important; /* Força a cor do placeholder */
+    opacity: 1;
+  }
 
-      var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-      var formData = $(this).find(':input').not(':submit').serialize();
-
-      $.ajax({
-        type: 'POST',
-        url: $(this).attr('action'),
-        data: formData,
-        dataType: 'json',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': csrftoken
-        },
-        success: function(response) {
-          if (response.success) {
-            $('#mensagem-sucesso-receita').text(response.message).show();
-            $('#mensagem-erro-receita').hide();
-            $('#receitaForm')[0].reset();
-            $('#id_descricao').focus();
-          } else {
-            let errorMessages = '';
-            if (response.errors) {
-              $.each(response.errors, function(field, errors) {
-                errorMessages += field + ': ' + errors.join(', ') + '<br>';
-              });
-            } else {
-              errorMessages = response.message;
-            }
-            $('#mensagem-erro-receita').html(errorMessages).show();
-          }
-        },
-        error: function(xhr, status, error) {
-          $('#mensagem-erro-receita').html('Ocorreu um erro ao salvar a receita.').show();
-        }
-      });
-    });
-
-    // Recarregar a página ao fechar o modal
-    $('#modalAdicionarReceita').on('hidden.bs.modal', function() {
-      location.reload();
-    });
-  });
-</script>
+  .form-select {
+    background-color: var(--card-bg) !important; /* Define o fundo da caixa como preto */
+    color: var(--text-color) !important; /* Define a cor do texto como a cor de texto padrão */
+  }
+  
+</style>

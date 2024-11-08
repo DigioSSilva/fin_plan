@@ -4,180 +4,253 @@
 {% block title %}Dashboard Financeiro{% endblock %}
 
 {% block content %}
-<style>
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        grid-gap: 20px;
-    }
-
-    .dashboard-card {
-        border: none;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        border-radius: 8px;
-        background-color: white;
-        transition: transform 0.2s;
-    }
-
-    .dashboard-card:hover {
-        transform: scale(1.02);
-    }
-
-    .dashboard-card h2 {
-        font-size: 1.5rem;
-        margin-bottom: 15px;
-        color: black;  /* Título em preto */
-    }
-
-    .dashboard-card p {
-        font-size: 1.1rem;
-        margin: 10px 0; /* Aumentando o espaçamento entre as linhas */
-    }
-
-    .positive {
-        color: green;
-        font-weight: bold;
-    }
-
-    .negative {
-        color: red;
-        font-weight: bold;
-    }
-
-    .filters {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .filters select {
-        margin-right: 10px;
-        padding: 5px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-    }
-
-    .filters button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    #despesasChart {
-        max-height: 300px;
-    }
-</style>
-
-<div class="container mt-4">
-    <h1>Dashboard Financeiro</h1>
-
-    <div class="greeting">
-        <p>
-            {% if now.hour < 12 %} Bom dia,
-            {% elif now.hour < 18 %} Boa tarde,
-            {% else %} Boa noite,
-            {% endif %}
-            {{ user.get_full_name|default:user.username|capfirst }}!
-        </p>
-    </div>
-
-    <div class="filters">
-        <form method="GET">
-            <label for="month">Mês:</label>
-            <select name="month">
-                {% for month in months %}
-                    <option value="{{ month.value }}" {% if month.value == current_month %}selected{% endif %}>
-                        {{ month.label }}
-                    </option>
-                {% endfor %}
-            </select>
-
-            <label for="year">Ano:</label>
-            <select name="year">
-                {% for year in years %}
-                    <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Filtrar</button>
-        </form>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="dashboard-card">
-            <h2>Resumo Mensal</h2>
-            <p>Receita mensal atual: <span class="positive">R$ {{ total_receitas|floatformat:2 }}</span></p>
-            <p>Despesa mensal atual: <span class="negative">R$ {{ total_despesas|floatformat:2 }}</span></p>
-            <p>Despesa mensal planejada: <span class="negative">R$ {{ total_planejamento|floatformat:2 }}</span></p>
-            <p>Saldo Atual: <span class="{% if saldo_atual <= 0 %}negative{% else %}positive{% endif %}">R$ {{ saldo_atual|floatformat:2 }}</span></p>
-            <p>Saldo Planejado: <span class="{% if saldo_planejado <= 0 %}negative{% else %}positive{% endif %}">R$ {{ saldo_planejado|floatformat:2 }}</span></p>
+<div class="container py-5">
+    <!-- Seção de boas-vindas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold mb-3" style="color: var(--text-dark);">Dashboard Financeiro</h1>
+            <p style="color: var(--text-color);">
+                {% if now.hour < 12 %}Bom dia,
+                {% elif now.hour < 18 %}Boa tarde,
+                {% else %}Boa noite,
+                {% endif %}
+                {{ user.get_full_name|default:user.username|capfirst }}!
+            </p>
         </div>
+    </div>
 
-        <div class="dashboard-card">
-            <h2>Despesas por Categoria</h2>
-            <canvas id="despesasChart"></canvas>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <!-- Cards de Resumo Rápido -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-success-bg);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 style="color: var(--text-color);" class="mb-2">Receitas Mensais</h6>
+                            <h3 style="color: var(--card-success-text);" class="mb-0">R$ {{ total_receitas|floatformat:2 }}</h3>
+                        </div>
+                        <div class="rounded-circle p-3" style="background-color: var(--card-success-bg);">
+                            <i class="fas fa-arrow-up fa-2x" style="color: var(--card-success-text);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-danger-bg);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 style="color: var(--text-color);" class="mb-2">Despesas Mensais</h6>
+                            <h3 style="color: var(--card-danger-text);" class="mb-0">R$ {{ total_despesas|floatformat:2 }}</h3>
+                        </div>
+                        <div class="rounded-circle p-3" style="background-color: var(--card-danger-bg);">
+                            <i class="fas fa-arrow-down fa-2x" style="color: var(--card-danger-text);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: {% if saldo_atual <= 0 %}var(--card-danger-bg){% else %}var(--card-success-bg){% endif %};">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 style="color: var(--text-color);" class="mb-2">Saldo Atual</h6>
+                            <h3 style="color: {% if saldo_atual <= 0 %}var(--card-danger-text){% else %}var(--card-success-text){% endif %};" class="mb-0">
+                                R$ {{ saldo_atual|floatformat:2 }}
+                            </h3>
+                        </div>
+                        <div class="rounded-circle p-3" style="background-color: {% if saldo_atual <= 0 %}var(--card-danger-bg){% else %}var(--card-success-bg){% endif %};">
+                            <i class="fas fa-wallet fa-2x" style="color: {% if saldo_atual <= 0 %}var(--card-danger-text){% else %}var(--card-success-text){% endif %};"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <script>
-                // Registrar o plugin de datalabels
-                Chart.register(ChartDataLabels);
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-bg);">
+                <div class="card-body p-4">
+                    <form method="GET" class="row g-3 d-flex align-items-end">
+                        <div class="col-md-4">
+                            <label for="month" class="form-label" style="color: var(--text-color);">Mês</label>
+                            <select name="month" id="month" class="form-select" style="background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border);">
+                                {% for month in months %}
+                                    <option value="{{ month.value }}" {% if month.value == current_month %}selected{% endif %}>
+                                        {{ month.label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="year" class="form-label" style="color: var(--text-color);">Ano</label>
+                            <select name="year" id="year" class="form-select" style="background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border);">
+                                {% for year in years %}
+                                    <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-auto">
+                            <button type="submit" class="btn btn-primary px-4" style="background-color: var(--primary-color); border: none;">
+                                <i class="fas fa-filter me-2"></i>Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                var ctx = document.getElementById('despesasChart').getContext('2d');
-                var despesasChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: {{ categorias|safe }},
-                        datasets: [{
-                            data: {{ totais|safe }},
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.6)',
-                                'rgba(54, 162, 235, 0.6)',
-                                'rgba(255, 206, 86, 0.6)',
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        var label = context.label || '';
-                                        var value = context.parsed || 0;
-                                        return `${label}: R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                display: true,
-                                anchor: 'center',
-                                align: 'center',
-                                formatter: function(value, context) {
-                                    return `${context.chart.data.labels[context.dataIndex]}\nR$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
-                                },
-                                color: '#000',
-                                font: {
-                                    weight: 'bold',
-                                    size: 14
-                                }
-                            }
-                        }
-                    }
-                });
-            </script>
+    <!-- Análise Detalhada -->
+    <div class="row mb-5 g-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3" style="height: 450px; background-color: var(--card-bg);">
+                <div class="card-body p-4">
+                    <h4 class="card-title d-flex align-items-center mb-4" style="color: var(--text-dark);">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        Resumo Mensal
+                    </h4>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
+                            <span style="color: var(--text-color);">Receita mensal atual:</span>
+                            <span style="color: var(--card-success-text);" class="fw-bold">R$ {{ total_receitas|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
+                            <span style="color: var(--text-color);">Despesa mensal atual:</span>
+                            <span style="color: var(--card-danger-text);" class="fw-bold">R$ {{ total_despesas|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
+                            <span style="color: var(--text-color);">Despesa mensal planejada:</span>
+                            <span style="color: var(--card-danger-text);" class="fw-bold">R$ {{ total_planejamento|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
+                            <span style="color: var(--text-color);">Saldo Atual:</span>
+                            <span class="fw-bold" style="color: {% if saldo_atual <= 0 %}var(--card-danger-text){% else %}var(--card-success-text){% endif %};">
+                                R$ {{ saldo_atual|floatformat:2 }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
+                            <span style="color: var(--text-color);">Saldo Planejado:</span>
+                            <span class="fw-bold" style="color: {% if saldo_planejado <= 0 %}var(--card-danger-text){% else %}var(--card-success-text){% endif %};">
+                                R$ {{ saldo_planejado|floatformat:2 }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3" style="height: 450px; background-color: var(--card-bg);">
+                <div class="card-body p-4">
+                    <h4 class="card-title d-flex align-items-center mb-4" style="color: var(--text-dark);">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>
+                        Despesas por Categoria
+                    </h4>
+                    <div style="height: calc(100% - 60px);">
+                        <canvas id="despesasChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px var(--shadow-color);
+    }
+    .rounded-3 {
+        border-radius: 1rem !important;
+    }
+    .form-select, .form-control, .btn {
+        border-radius: 0.5rem;
+    }
+    .btn-primary:hover {
+        background-color: var(--primary-color);
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+    Chart.register(ChartDataLabels);
+
+    var ctx = document.getElementById('despesasChart').getContext('2d');
+    var despesasChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ categorias|safe }},
+            datasets: [{
+                data: {{ totais|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            layout: {
+                padding: {
+                    bottom: 20
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        color: 'var(--text-color)',
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            var label = context.label || '';
+                            var value = context.parsed || 0;
+                            return `${label}: R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    },
+                    formatter: function(value, context) {
+                        return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

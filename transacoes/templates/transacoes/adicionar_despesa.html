@@ -1,105 +1,107 @@
 <div class="modal fade" id="modalAdicionarDespesa" tabindex="-1" aria-labelledby="modalAdicionarDespesaLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAdicionarDespesaLabel">Adicionar Despesa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="background-color: var(--card-bg);">
+
+      <div class="modal-header border-0" style="background-color: var(--card-danger-bg);">
+        <h5 class="modal-title d-flex align-items-center gap-2" id="modalAdicionarDespesaLabel">
+          <i class="fas fa-minus-circle" style="color: var(--card-danger-text);"></i>
+          <span class="fw-bold" style="color: var(--card-danger-text);">Adicionar Despesa</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <form id="despesaForm" method="post">
+          {% csrf_token %}
+
+          <div id="mensagem-sucesso-despesa" class="alert alert-success d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>Despesa salva com sucesso!</span>
+          </div>
+          <div id="mensagem-erro-despesa" class="alert alert-danger d-flex align-items-center shadow-sm border-0" style="display: none !important;">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span></span>
+          </div>
+
+          <div class="mb-4">
+            <label for="id_descricao" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Descrição</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-pen" style="color: var(--card-danger-text);"></i>
+              </span>
+              <input type="text" id="id_descricao" name="descricao" 
+                     class="form-control border-0" 
+                     style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                     placeholder="Ex: Supermercado" required>
             </div>
-            <div class="modal-body">
-                <form id="despesaForm" method="post" action="{% url 'adicionar_despesa' %}">
-                    {% csrf_token %}
-                    <div id="mensagem-sucesso-despesa" class="alert alert-success" style="display: none;">
-                        Despesa salva com sucesso!
-                    </div>
-                    <div id="mensagem-erro-despesa" class="alert alert-danger" style="display: none;"></div>
+          </div>
 
-                    <div class="mb-3">
-                        <label for="id_descricao" class="form-label">Descrição</label>
-                        <input type="text" id="id_descricao" name="descricao" class="form-control" placeholder="Ex: Supermercado" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="id_categoria" class="form-label">Categoria</label>
-                        <select id="id_categoria" name="categoria" class="form-control" required>
-                            <option value="" disabled selected>Selecione uma categoria</option>
-                            {% for categoria in categorias_despesa %}
-                                <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="id_data" class="form-label">Data</label>
-                        <input type="date" id="id_data" name="data" class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="id_valor" class="form-label">Valor</label>
-                        <input type="text" id="id_valor" name="valor" class="form-control" placeholder="Ex: 150,00" required>
-                    </div>
-                </form>
+          <div class="mb-4">
+            <label for="id_categoria" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Categoria</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-tag" style="color: var(--card-danger-text);"></i>
+              </span>
+              <select id="id_categoria" name="categoria" 
+                      class="form-select border-0" 
+                      style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                      required>
+                <option value="" disabled selected>Selecione uma categoria</option>
+                {% for categoria in categorias_despesa %}
+                  <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                {% endfor %}
+              </select>
             </div>
+          </div>
 
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success btn-lg" form="despesaForm">Salvar Despesa</button>
-                <button type="button" class="btn btn-secondary ms-3" data-bs-dismiss="modal">Cancelar</button>
-            </div> 
-        </div>
+          <div class="mb-4">
+            <label for="id_data" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Data</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-calendar" style="color: var(--card-danger-text);"></i>
+              </span>
+              <input type="date" id="id_data" name="data" 
+                     class="form-control border-0" 
+                     style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                     required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="id_valor" class="form-label fw-semibold small mb-2" style="color: var(--text-color);">Valor</label>
+            <div class="input-group">
+              <span class="input-group-text border-0" style="background-color: var(--card-neutral-bg);">
+                <i class="fas fa-dollar-sign" style="color: var(--card-danger-text);"></i>
+              </span>
+              <input type="text" id="id_valor" name="valor" 
+                     class="form-control border-0"
+                     style="background-color: var(--card-neutral-bg); color: var(--text-dark);"
+                     placeholder="Ex: 150,00" required>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn" style="background-color: var(--card-neutral-bg); color: var(--text-dark);" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger px-4">
+              <i class="fas fa-check me-2"></i>Salvar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        $('#despesaForm').submit(function(event) {
-            event.preventDefault(); // Impede o envio padrão do formulário
+<style>
+  /* Estilo para o placeholder */
+  input::placeholder {
+    color: var(--text-color) !important; /* Força a cor do placeholder */
+    opacity: 1;
+  }
 
-            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            var formData = $(this).find(':input').not(':submit').serialize();
-
-            // Desativar o botão de submit para evitar duplo clique
-            $('#despesaForm button[type="submit"]').prop('disabled', true);
-
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'),
-                data: formData,
-                dataType: 'json',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrftoken
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#mensagem-sucesso-despesa').text(response.message).show();
-                        $('#mensagem-erro-despesa').hide();
-                        $('#despesaForm')[0].reset();
-                        $('#id_descricao').focus();
-                    } else {
-                        let errorMessages = '';
-                        if (response.errors) {
-                            $.each(response.errors, function(field, errors) {
-                                errorMessages += field + ': ' + errors.join(', ') + '<br>';
-                            });
-                        } else {
-                            errorMessages = response.message;
-                        }
-                        $('#mensagem-erro-despesa').html(errorMessages).show();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    $('#mensagem-erro-despesa').html('Ocorreu um erro ao salvar a despesa.').show();
-                },
-                complete: function() {
-                    // Reativar o botão de submit após a requisição
-                    $('#despesaForm button[type="submit"]').prop('disabled', false);
-                }
-            });
-        });
-
-        // Recarregar a página ao fechar o modal
-        $('#modalAdicionarDespesa').on('hidden.bs.modal', function() {
-            $('#mensagem-sucesso-despesa, #mensagem-erro-despesa').hide(); // Esconde as mensagens ao fechar o modal
-            location.reload(); // Recarrega a página para refletir as alterações
-        });
-    });
-</script>
+  .form-select {
+    background-color: var(--card-bg) !important; /* Define o fundo da caixa como preto */
+    color: var(--text-color) !important; /* Define a cor do texto como a cor de texto padrão */
+  }
+  
+</style>
