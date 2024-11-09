@@ -6,5 +6,4 @@ urlpatterns = [
     path('adicionar-categoria', views.adicionar_categoria, name='adicionar_categoria'),
     path('excluir_categoria/<int:categoria_id>/', views.excluir_categoria, name='excluir_categoria'),
     path('editar_categoria/<int:categoria_id>/', views.editar_categoria, name='editar_categoria'),
-    path('categorias/', views.categorias_view, name='categorias_view'),
 ]

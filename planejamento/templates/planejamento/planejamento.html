@@ -54,7 +54,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabelaCategorias">
-                            {% for categoria in categorias_despesa %}
+                            {% for categoria in categorias %}
                                 <tr style="background-color: var(--card-bg);">
                                     <td style="color: var(--text-dark); background-color: var(--card-bg);">{{ categoria.nome }}</td>
                                     <td style="color: var(--text-dark); background-color: var(--card-bg);">R$ {{ categoria.montante_plan|floatformat:2 }}</td>
@@ -244,10 +244,9 @@
                     location.reload();
                 } else {
                     // Mostrar mensagem de erro no modal
-                    $('#mensagem-erro-excluir-' + categoriaId)
-                        .find('span')
-                        .text(response.error);
-                    $('#mensagem-erro-excluir-' + categoriaId).show();
+                    const mensagemErro = $('#mensagem-erro-excluir-' + categoriaId);
+                    mensagemErro.removeClass('d-none'); // Remove a classe d-none
+                    mensagemErro.find('span').text(response.error);
                 }
             },
             error: function(xhr) {
@@ -256,10 +255,9 @@
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     errorMessage = xhr.responseJSON.error;
                 }
-                $('#mensagem-erro-excluir-' + categoriaId)
-                    .find('span')
-                    .text(errorMessage);
-                $('#mensagem-erro-excluir-' + categoriaId).show();
+                const mensagemErro = $('#mensagem-erro-excluir-' + categoriaId);
+                mensagemErro.removeClass('d-none'); // Remove a classe d-none
+                mensagemErro.find('span').text(errorMessage);
             }
         });
     }

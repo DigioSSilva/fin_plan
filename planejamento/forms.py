@@ -27,8 +27,5 @@ class CategoriaForm(forms.ModelForm):
                     'montante_plan', 
                     'Por favor, insira um montante estimado de gastos para a categoria de despesa.'
                 )
-        else:
-            # Limpar o montante_plan para receitas (definido como None se não for relevante)
-            cleaned_data['montante_plan'] = None
 
         return cleaned_data

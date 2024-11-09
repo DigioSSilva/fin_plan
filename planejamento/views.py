@@ -5,11 +5,12 @@ from .models import Categoria
 from django.http import JsonResponse
 from decimal import Decimal
 from django.views.decorators.http import require_POST
+from django.db.models import ProtectedError
 
 @login_required
 def planejamento_view(request):
-    categorias_despesa = Categoria.objects.filter(usuario=request.user)
-    context = {'categorias_despesa': categorias_despesa}
+    categorias = Categoria.objects.filter(usuario=request.user)
+    context = {'categorias': categorias}
     return render(request, 'planejamento/planejamento.html', context)
 
 @login_required
@@ -51,22 +52,23 @@ def adicionar_categoria(request):
 
     return JsonResponse({'success': False, 'error': 'Método não permitido.'})
 
-
-@login_required
-def categorias_view(request):
-    categorias_despesa = Categoria.objects.filter(usuario = request.user)
-    context = {'categorias_despesa': categorias_despesa}
-    print(categorias_despesa)
-    return render(request, 'planejamento/planejamento.html', context)
-
 @require_POST
 @login_required
 def excluir_categoria(request, categoria_id):
     try:
         # Tenta encontrar a categoria associada ao usuário
         categoria = Categoria.objects.get(id=categoria_id, usuario=request.user)
-        categoria.delete()  # Exclui a categoria
-        return JsonResponse({'success': True})
+        
+        try:
+            categoria.delete()  # Tenta excluir a categoria
+            return JsonResponse({'success': True})
+        except ProtectedError:
+            # Este erro ocorre quando há registros relacionados que impedem a exclusão
+            return JsonResponse({
+                'success': False, 
+                'error': 'Não é possível excluir esta categoria pois existem transações vinculadas a ela.'
+            })
+            
     except Categoria.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Categoria não encontrada.'})
     except Exception as e:
