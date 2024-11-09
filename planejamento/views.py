@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 
 @login_required
 def planejamento_view(request):
-    categorias_despesa = Categoria.objects.filter(tipo='despesa', usuario=request.user)
+    categorias_despesa = Categoria.objects.filter(usuario=request.user)
     context = {'categorias_despesa': categorias_despesa}
     return render(request, 'planejamento/planejamento.html', context)
 
@@ -54,7 +54,7 @@ def adicionar_categoria(request):
 
 @login_required
 def categorias_view(request):
-    categorias_despesa = Categoria.objects.filter(tipo='despesa', usuario = request.user)
+    categorias_despesa = Categoria.objects.filter(usuario = request.user)
     context = {'categorias_despesa': categorias_despesa}
     print(categorias_despesa)
     return render(request, 'planejamento/planejamento.html', context)

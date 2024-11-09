@@ -47,9 +47,17 @@ def financial_data(request, selected_month=None, selected_year=None):
         usuario = request.user
     ).values('categoria__nome').annotate(total=Sum('valor'))
 
+    #Buscar valores planejados por categoria
+    planejado_por_categoria = Categoria.objects.filter(
+        tipo='despesa',
+        usuario=request.user
+    ).values('nome', 'montante_plan')
+
+    planejamento_dict = {cat['nome']: float(cat['montante_plan']) for cat in planejado_por_categoria}
 
     categorias = [despesa['categoria__nome'] for despesa in despesas_por_categoria]
     totais = [float(despesa['total']) for despesa in despesas_por_categoria]
+    valores_planejados = [planejamento_dict.get(cat, 0) for cat in categorias]
 
     #Buscar montante total planejado
     total_planejamento = Categoria.objects.filter(tipo= 'despesa', 
@@ -59,7 +67,6 @@ def financial_data(request, selected_month=None, selected_year=None):
     #Saldo Atual e saldo planejado
     saldo_atual = total_receitas - total_despesas
     saldo_planejado = total_receitas - total_planejamento
-
     return {
         'now': now,
         'months': months,
@@ -73,4 +80,5 @@ def financial_data(request, selected_month=None, selected_year=None):
         'saldo_planejado': saldo_planejado,
         'categorias': categorias,
         'totais': totais,
+        'planejamento_por_categoria': valores_planejados
     }

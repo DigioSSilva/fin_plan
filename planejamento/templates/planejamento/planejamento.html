@@ -10,7 +10,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="display-5 fw-bold mb-3" style="color: var(--text-dark);">Planejamento</h1>
-            <p style="color: var(--text-color);">Gerencie suas categorias de despesas e defina limites de gastos</p>
+            <p style="color: var(--text-color);">Gerencie suas categorias defina limites de gastos e metas de receitas</p>
         </div>
     </div>
 
@@ -24,7 +24,7 @@
                             <i class="fas fa-folder-plus me-2" style="color: var(--primary-color);"></i>
                             Adicionar Categoria
                         </h4>
-                        <p style="color: var(--text-color);" class="mb-0">Organize suas despesas em categorias personalizadas</p>
+                        <p style="color: var(--text-color);" class="mb-0">Organize suas despesas e receitas em categorias personalizadas</p>
                     </div>
                     <button type="button" class="btn btn-primary rounded-circle p-3" data-bs-toggle="modal" data-bs-target="#modalAdicionarCategoria" style="background-color: var(--primary-color); border: none;">
                         <i class="fas fa-plus fa-lg"></i>
@@ -48,7 +48,8 @@
                             <thead>
                                 <tr>
                                     <th style="color: var(--text-color); background-color: var(--card-bg);">Nome</th>
-                                    <th style="color: var(--text-color); background-color: var(--card-bg);">Valor Atribuído</th>
+                                    <th style="color: var(--text-color); background-color: var(--card-bg);">Valor Planejado/Meta</th>
+                                    <th style="color: var(--text-color); background-color: var(--card-bg);">Tipo</th>
                                     <th style="color: var(--text-color); background-color: var(--card-bg);">Ações</th>
                                 </tr>
                             </thead>
@@ -57,6 +58,13 @@
                                 <tr style="background-color: var(--card-bg);">
                                     <td style="color: var(--text-dark); background-color: var(--card-bg);">{{ categoria.nome }}</td>
                                     <td style="color: var(--text-dark); background-color: var(--card-bg);">R$ {{ categoria.montante_plan|floatformat:2 }}</td>
+                                    <td>
+                                        {% if categoria.tipo == 'receita' %}
+                                            <span class="badge rounded-3" style="background-color: var(--card-success-bg); color: var(--card-success-text);">Receita</span>
+                                        {% else %}
+                                            <span class="badge rounded-3" style="background-color: var(--card-danger-bg); color: var(--card-danger-text);">Despesa</span>
+                                        {% endif %}
+                                    </td>        
                                     <td style="background-color: var(--card-bg);">
                                         <button type="button" class="btn btn-sm me-2" style="background-color: var(--card-neutral-bg);" data-bs-toggle="modal" data-bs-target="#modalEditarCategoria{{ categoria.id }}">
                                             <i class="fas fa-edit" style="color: var(--card-success-text);"></i>

@@ -108,7 +108,7 @@
     <!-- Análise Detalhada -->
     <div class="row mb-5 g-4">
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-3" style="height: 450px; background-color: var(--card-bg);">
+            <div class="card border-0 shadow-sm rounded-3" style="height: 500px; background-color: var(--card-bg);">
                 <div class="card-body p-4">
                     <h4 class="card-title d-flex align-items-center mb-4" style="color: var(--text-dark);">
                         <i class="fas fa-chart-line text-primary me-2"></i>
@@ -116,15 +116,15 @@
                     </h4>
                     <div class="d-flex flex-column gap-4">
                         <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
-                            <span style="color: var(--text-color);">Receita mensal atual:</span>
+                            <span style="color: var(--text-color);">Receita atual:</span>
                             <span style="color: var(--card-success-text);" class="fw-bold">R$ {{ total_receitas|floatformat:2 }}</span>
                         </div>
                         <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
-                            <span style="color: var(--text-color);">Despesa mensal atual:</span>
+                            <span style="color: var(--text-color);">Despesa atual:</span>
                             <span style="color: var(--card-danger-text);" class="fw-bold">R$ {{ total_despesas|floatformat:2 }}</span>
                         </div>
                         <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
-                            <span style="color: var(--text-color);">Despesa mensal planejada:</span>
+                            <span style="color: var(--text-color);">Despesa planejada:</span>
                             <span style="color: var(--card-danger-text);" class="fw-bold">R$ {{ total_planejamento|floatformat:2 }}</span>
                         </div>
                         <div class="d-flex justify-content-between p-3 rounded" style="background-color: var(--card-neutral-bg);">
@@ -144,15 +144,31 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-3" style="height: 450px; background-color: var(--card-bg);">
+            <div class="card border-0 shadow-sm rounded-3" style="height: 500px; background-color: var(--card-bg);">
                 <div class="card-body p-4">
                     <h4 class="card-title d-flex align-items-center mb-4" style="color: var(--text-dark);">
                         <i class="fas fa-chart-pie text-primary me-2"></i>
                         Despesas por Categoria
                     </h4>
-                    <div style="height: calc(100% - 60px);">
+                    <div style="height: 420px;">
                         <canvas id="despesasChart"></canvas>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Gráfico Comparativo -->
+<div class="row mb-4"> 
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-3" style="background-color: var(--card-bg);">
+            <div class="card-body p-4">
+                <h4 class="card-title d-flex align-items-center mb-4" style="color: var(--text-dark);">
+                    <i class="fas fa-chart-bar text-primary me-2"></i>
+                    Comparativo: Planejado vs. Realizado por Categoria
+                </h4>
+                <div style="height: 300px;"> <!-- Reduzido de 400px para 300px -->
+                    <canvas id="comparativoChart"></canvas>
                 </div>
             </div>
         </div>
@@ -178,6 +194,26 @@
         opacity: 0.9;
         transform: translateY(-2px);
     }
+    <style>
+        @media (max-width: 768px) {
+            #comparativoChart {
+                height: 100% !important;
+            }
+            
+            .card-body {
+                padding: 1rem !important;
+            }
+            
+            .card-title {
+                font-size: 1.2rem !important;
+            }
+            
+            /* Ajusta a altura do container em dispositivos móveis */
+            #comparativoChart-container {
+                height: 250px !important; /* Altura menor para mobile */
+            }
+        }
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -186,6 +222,17 @@
     Chart.register(ChartDataLabels);
 
     var ctx = document.getElementById('despesasChart').getContext('2d');
+
+    function isDarkMode() {
+        const style = getComputedStyle(document.documentElement);
+        const textDark = style.getPropertyValue('--text-dark').trim();
+        return textDark.includes('255') || textDark.includes('fff') || textDark.includes('white');
+    }
+
+    function getThemeTextColor() {
+        return isDarkMode() ? '#ffffff' : '#000000';
+    }
+
     var despesasChart = new Chart(ctx, {
         type: 'pie',
         data: {
@@ -224,7 +271,7 @@
                     position: 'bottom',
                     labels: {
                         padding: 15,
-                        color: 'var(--text-color)',
+                        color: getThemeTextColor(),
                         font: {
                             size: 12
                         }
@@ -240,17 +287,203 @@
                     }
                 },
                 datalabels: {
-                    color: '#fff',
+                    color: getThemeTextColor(),
                     font: {
                         weight: 'bold',
                         size: 12
                     },
-                    formatter: function(value, context) {
+                    formatter: function(value) {
                         return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
                     }
                 }
             }
         }
     });
+
+    // Observer para atualizar tanto a legenda quanto os rótulos internos
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme' || mutation.attributeName === 'style') {
+                const newColor = getThemeTextColor();
+                despesasChart.options.plugins.legend.labels.color = newColor;
+                despesasChart.options.plugins.datalabels.color = newColor;
+                despesasChart.update('none');
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme', 'style']
+    });
+
+    // Atualiza as cores quando a página carrega
+    window.addEventListener('load', function() {
+        const initialColor = getThemeTextColor();
+        despesasChart.options.plugins.legend.labels.color = initialColor;
+        despesasChart.options.plugins.datalabels.color = initialColor;
+        despesasChart.update('none');
+    });
 </script>
+
+<script>
+    var ctxComparativo = document.getElementById('comparativoChart').getContext('2d');
+
+function isDarkMode() {
+    const style = getComputedStyle(document.documentElement);
+    const textDark = style.getPropertyValue('--text-dark').trim();
+    return textDark.includes('255') || textDark.includes('fff') || textDark.includes('white');
+}
+
+function getThemeTextColor() {
+    return isDarkMode() ? '#ffffff' : '#000000';
+}
+
+function getThemeBackgroundColor() {
+    return isDarkMode() ? '#121212' : '#ffffff';
+}
+
+var comparativoChart = new Chart(ctxComparativo, {
+    type: 'bar',
+    data: {
+        labels: {{ categorias|safe }},
+        datasets: [
+            {
+                label: 'Valor Planejado',
+                data: {{ planejamento_por_categoria|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Valor Realizado',
+                data: {{ totais|safe }},
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2, // Define uma proporção mais adequada
+        resizeDelay: 0,
+        animation: {
+            duration: window.innerWidth < 768 ? 0 : 1000
+        },
+        layout: {
+            padding: {
+                left: 10,
+                right: 10,
+                top: 20,
+                bottom: 10
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'R$ ' + value.toLocaleString('pt-BR', {
+                            minimumFractionDigits: 2
+                        });
+                    },
+                    color: getThemeTextColor(),
+                    font: {
+                        size: 11 // Reduz um pouco o tamanho da fonte
+                    }
+                },
+                grid: {
+                    color: isDarkMode() ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                }
+            },
+            x: {
+                ticks: {
+                    color: getThemeTextColor(),
+                    font: {
+                        size: 11 // Reduz um pouco o tamanho da fonte
+                    }
+                },
+                grid: {
+                    display: false
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    color: getThemeTextColor(),
+                    font: {
+                        size: 11 // Reduz um pouco o tamanho da fonte
+                    },
+                    boxWidth: 30 // Reduz o tamanho das caixas da legenda
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        let value = context.parsed.y || 0;
+                        return `${label}: R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+                    }
+                }
+            },
+            datalabels: {
+                color: getThemeTextColor(),
+                font: {
+                    weight: 'bold',
+                    size: 11
+                },
+                formatter: function(value) {
+                    return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+                },
+                anchor: 'end', // Posiciona os labels no topo das barras
+                align: 'top'  // Alinha os labels acima das barras
+            }
+        }
+    }
+});
+
+// Observer para atualizar cores quando o tema mudar
+const observerComparativo = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'data-theme' || mutation.attributeName === 'style') {
+            const textColor = getThemeTextColor();
+            const gridColor = isDarkMode() ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            
+            comparativoChart.options.scales.y.ticks.color = textColor;
+            comparativoChart.options.scales.x.ticks.color = textColor;
+            comparativoChart.options.scales.y.grid.color = gridColor;
+            comparativoChart.options.plugins.legend.labels.color = textColor;
+            comparativoChart.options.plugins.datalabels.color = textColor;
+            
+            comparativoChart.update('none');
+        }
+    });
+});
+
+observerComparativo.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme', 'style']
+});
+
+// Atualiza as cores quando a página carrega
+window.addEventListener('load', function() {
+    const textColor = getThemeTextColor();
+    const gridColor = isDarkMode() ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    
+    comparativoChart.options.scales.y.ticks.color = textColor;
+    comparativoChart.options.scales.x.ticks.color = textColor;
+    comparativoChart.options.scales.y.grid.color = gridColor;
+    comparativoChart.options.plugins.legend.labels.color = textColor;
+    comparativoChart.options.plugins.datalabels.color = textColor;
+    
+    comparativoChart.update('none');
+});
+</script>
+
+
 {% endblock %}
