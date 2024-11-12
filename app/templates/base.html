@@ -18,7 +18,84 @@
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
  <style>
-   /* Previne flash branco */
+  /* Estilo agrupamento menu lateral */
+.nav-group {
+  margin-bottom: 1rem;
+}
+
+.nav-group-header {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.nav-group-header:hover {
+  background-color: var(--hover-bg);
+}
+
+.nav-group-header i {
+  width: 1.5rem;
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+.nav-group-header .arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.nav-group-header.collapsed .arrow {
+  transform: rotate(-90deg);
+}
+
+.nav-group-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.nav-group-content.show {
+  max-height: 500px;
+}
+
+.nav-group-content .nav-link {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+  opacity: 0;
+}
+
+.nav-group-content.show .nav-link {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.nav-group-content .nav-link {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+  opacity: 0;
+  pointer-events: auto;
+}
+
+.nav-group-content.show .nav-link {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav-group-header {
+  pointer-events: auto;
+}
+
+
+
+  /* Previne flash branco */
    html {
      background-color: var(--body-bg);
    }
@@ -304,26 +381,53 @@
  </div>
 
  <!-- Sidebar -->
- <div class="sidebar">
-   <nav>
-     <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/' or request.path == '/dashboard/' %}active{% endif %}">
-       <i class="fas fa-home"></i>
-       <span>Dashboard</span>
-     </a>
-     <a href="{% url 'transacoes' %}" class="nav-link {% if '/transacoes/' in request.path %}active{% endif %}">
-       <i class="fas fa-exchange-alt"></i>
-       <span>Transações</span>
-     </a>
-     <a href="{% url 'planejamento' %}" class="nav-link {% if '/planejamento/' in request.path %}active{% endif %}">
-       <i class="fas fa-clipboard-list"></i>
-       <span>Planejamento</span>
-     </a>
-     <a href="{% url 'logout' %}" class="nav-link">
-       <i class="fas fa-sign-out-alt"></i>
-       <span>Sair</span>
-     </a>
-   </nav>
- </div>
+<div class="sidebar">
+  <nav>
+      <!-- Grupo Finanças Pessoais -->
+  <div class="nav-group">
+    <div class="nav-group-header collapsed" onclick="toggleNavGroup(this, event)">
+      <i class="fas fa-wallet"></i>
+      <span>Finanças Pessoais</span>
+      <i class="fas fa-chevron-down arrow"></i>
+    </div>
+    <div class="nav-group-content">
+      <a href="{% url 'dashboard' %}" class="nav-link ajax-link {% if request.path == '/' or request.path == '/dashboard/' %}active{% endif %}">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="{% url 'transacoes' %}" class="nav-link ajax-link {% if '/transacoes/' in request.path %}active{% endif %}">
+        <i class="fas fa-exchange-alt"></i>
+        <span>Transações</span>
+      </a>
+      <a href="{% url 'planejamento' %}" class="nav-link ajax-link {% if '/planejamento/' in request.path %}active{% endif %}">
+        <i class="fas fa-clipboard-list"></i>
+        <span>Planejamento</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Grupo Investimentos -->
+  <div class="nav-group">
+    <div class="nav-group-header collapsed" onclick="toggleNavGroup(this, event)">
+      <i class="fas fa-chart-line"></i>
+      <span>Investimentos</span>
+      <i class="fas fa-chevron-down arrow"></i>
+    </div>
+    <div class="nav-group-content">
+      <a href="#" class="nav-link ajax-link" onclick="event.stopPropagation()">
+        <i class="fas fa-balance-scale"></i>
+        <span>Carteira Consolidada</span>
+      </a>
+    </div>
+  </div>
+
+    <!-- Link Sair -->
+    <a href="{% url 'logout' %}" class="nav-link">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Sair</span>
+    </a>
+  </nav>
+</div>
 
  <!-- Main Content -->
  <div class="main-content">
@@ -343,6 +447,43 @@
  <script>
    let sidebarVisible = false;
 
+
+  // Função para salvar estado do grupo no localStorage
+function saveNavGroupState(groupName, isOpen) {
+  localStorage.setItem(`navGroup_${groupName}`, isOpen);
+}
+
+// Função para obter estado salvo do grupo
+function getNavGroupState(groupName) {
+  return localStorage.getItem(`navGroup_${groupName}`) === 'true';
+}
+
+// Função para inicializar os grupos
+function initializeNavGroups() {
+  const groups = document.querySelectorAll('.nav-group');
+  
+  groups.forEach((group, index) => {
+      const groupName = `group_${index}`;
+      const header = group.querySelector('.nav-group-header');
+      const content = group.querySelector('.nav-group-content');
+      
+      // Recupera estado salvo
+      const isOpen = getNavGroupState(groupName);
+      
+      if (isOpen) {
+          header.classList.remove('collapsed');
+          content.classList.add('show');
+          content.style.maxHeight = content.scrollHeight + "px";
+          
+          // Ajusta a visibilidade dos links
+          const links = content.querySelectorAll('.nav-link');
+          links.forEach(link => {
+              link.style.transform = 'translateY(0)';
+              link.style.opacity = '1';
+          });
+      }
+  });
+}
    // Habilitar transições após o carregamento
    document.addEventListener('DOMContentLoaded', function() {
      setTimeout(function() {
@@ -353,6 +494,9 @@
      const savedTheme = localStorage.getItem('theme') || 'light';
      const themeToggleButton = document.querySelector('.theme-toggle i');
      themeToggleButton.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+     // Inicializa os grupos do menu
+    initializeNavGroups();
    });
 
    // Função para alternar o tema
@@ -414,6 +558,99 @@
        toggleSidebar();
      }
    });
+
+   function toggleNavGroup(header, event) {
+    // Previne que o clique se propague para elementos pai
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    // Se o clique veio de um link dentro do grupo, não faça nada
+    if (event && event.target.closest('.nav-link')) {
+        return;
+    }
+
+    const content = header.nextElementSibling;
+    const links = content.querySelectorAll('.nav-link');
+    const group = header.closest('.nav-group');
+    const groupIndex = Array.from(document.querySelectorAll('.nav-group')).indexOf(group);
+    const groupName = `group_${groupIndex}`;
+    
+    header.classList.toggle('collapsed');
+    content.classList.toggle('show');
+    
+    // Salva o estado atual
+    const isOpen = content.classList.contains('show');
+    saveNavGroupState(groupName, isOpen);
+    
+    if (isOpen) {
+        content.style.maxHeight = content.scrollHeight + "px";
+        links.forEach((link, index) => {
+            setTimeout(() => {
+                link.style.transform = 'translateY(0)';
+                link.style.opacity = '1';
+            }, index * 100);
+        });
+    } else {
+        content.style.maxHeight = '0';
+        links.forEach(link => {
+            link.style.transform = 'translateY(-100%)';
+            link.style.opacity = '0';
+        });
+    }
+}
+
+// Função para carregar conteúdo via AJAX
+function loadContent(url) {
+  const mainContent = document.querySelector('.main-content');
+  
+  fetch(url)
+  .then(response => response.text())
+  .then(html => {
+      // Cria um elemento temporário para parsear o HTML
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      
+      // Pega apenas o conteúdo dentro de main-content
+      const newContent = doc.querySelector('.main-content');
+      
+      // Atualiza o conteúdo
+      if (newContent) {
+          mainContent.innerHTML = newContent.innerHTML;
+      }
+      
+      // Atualiza a URL
+      window.history.pushState({}, '', url);
+      
+      // Atualiza classes active dos links
+      document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === url) {
+              link.classList.add('active');
+          }
+      });
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+// Adiciona os event listeners quando o documento carrega
+document.addEventListener('DOMContentLoaded', function() {
+  // Intercepta cliques nos links
+  document.querySelectorAll('.ajax-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const url = this.getAttribute('href');
+          if (url !== '#') {
+              loadContent(url);
+          }
+      });
+  });
+
+  // Manipula botões voltar/avançar do navegador
+  window.addEventListener('popstate', function() {
+      loadContent(window.location.pathname);
+  });
+});
  </script>
 </body>
 </html>
